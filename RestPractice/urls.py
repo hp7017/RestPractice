@@ -18,5 +18,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('poll.urls'))
+    path('poll/', include('poll.urls')),
+    path('libgen/', include('LibGen.urls'))
 ]

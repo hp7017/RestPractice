@@ -8,19 +8,25 @@ class VoteSerializer(serializers.ModelSerializer):
 		fields = '__all__'
 
 class ChoiceSerializer(serializers.ModelSerializer):
+	votes = VoteSerializer(many=True, required=False, read_only=True)
+
 	class Meta:
 		model = Choice
 		fields = '__all__'
 
 class PollSerializer(serializers.ModelSerializer):
+	choices = ChoiceSerializer(many=True, required=False, read_only=True)
+
 	class Meta:
 		model = Poll
 		fields = '__all__'
 
 class UserSerializer(serializers.ModelSerializer):
+	polls = PollSerializer(many=True, required=False, read_only=True)
+
 	class Meta:
 		model = User
-		fields = ('username', 'email', 'password')
+		fields = ('username', 'email', 'password', 'polls')
 		extra_kwargs = {'password': {'write_only': True}}
 
 	def create(self, validated_data):
