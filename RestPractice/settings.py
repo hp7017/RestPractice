@@ -25,7 +25,7 @@ SECRET_KEY = '$k9&3rn!$y5qh)rel&0f(en#)q_cpdkp!oh&t)1@q-3&#+yz_v'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = ['hp7017.pythonanywhere.com']
 
 
 # Application definition
@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'LibGen',
     'rest_framework',
-    'poll'
 ]
 
 MIDDLEWARE = [
@@ -121,3 +120,4 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, "static")

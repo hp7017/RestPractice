@@ -6,15 +6,18 @@ class AppSerializer(serializers.ModelSerializer):
 		model = models.App
 		fields = '__all__'
 
+class BookSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = models.Book
+		fields = '__all__'
+
 class SearchSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = models.Search
 		fields = '__all__'
 
 class CUserSerializer(serializers.ModelSerializer):
-	searchs = SearchSerializer(many=True, required=False, read_only=True)
-
 	class Meta:
 		model = models.CUser
-		fields = ('id', 'username', 'email', 'password', 'searchs')
-		extra_kwargs = {'password': {'write_only': True}}
+		fields = '__all__'
+		extra_kwargs = {'uid': {'write_only': True}}

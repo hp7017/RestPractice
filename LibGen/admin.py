@@ -6,3 +6,4 @@ from . import models
 admin.site.register(models.App)
 admin.site.register(models.Search)
 admin.site.register(models.CUser)
+admin.site.register(models.Book)
