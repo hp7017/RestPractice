@@ -29,6 +29,7 @@ class CuserAdmin(admin.ModelAdmin):
 	add_receiver.short_description = 'Add selected users to receiver for active msgs'
 
 class SearchAdmin(admin.ModelAdmin):
+	readonly_fields = ['id']
 	list_display = ['search', 'user', 'date']
 	list_filter = ['date']
 	inlines = [BookInline]

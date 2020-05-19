@@ -32,6 +32,25 @@ class CUser(models.Model):
 	def __str__(self):
 		return self.uid
 
+class Search(models.Model):
+	user = models.ForeignKey(CUser, related_name='searchs', on_delete=models.CASCADE)
+	search = models.CharField(max_length=500)
+	date = models.DateTimeField(auto_now_add=True)
+
+	def __str__(self):
+		return self.search
+
+class Book(models.Model):
+	search = models.ForeignKey(Search, related_name='books', on_delete=models.CASCADE)
+	name = models.CharField(max_length=5000)
+	date = models.DateTimeField(auto_now_add=True)
+
+	def __str__(self):
+		return self.name
+
+
+
+
 class EnvirementVariable(models.Model):
 	version = models.CharField(max_length=10)
 	desktop_version = models.CharField(max_length=10)
@@ -49,19 +68,3 @@ class AdminMsg(models.Model):
 
 	def __str__(self):
 		return str(self.subject)
-
-class Search(models.Model):
-	user = models.ForeignKey(CUser, related_name='searchs', on_delete=models.CASCADE)
-	search = models.CharField(max_length=500)
-	date = models.DateTimeField(auto_now_add=True)
-
-	def __str__(self):
-		return self.search
-
-class Book(models.Model):
-	search = models.ForeignKey(Search, related_name='books', on_delete=models.CASCADE)
-	name = models.CharField(max_length=5000)
-	date = models.DateTimeField(auto_now_add=True)
-
-	def __str__(self):
-		return self.name
