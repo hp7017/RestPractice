@@ -1,9 +1,9 @@
 from rest_framework import serializers
 from . import models
 
-class EnvirementVariableSerializer(serializers.ModelSerializer):
+class AppSerializer(serializers.ModelSerializer):
 	class Meta:
-		model = models.EnvirementVariable
+		model = models.App
 		fields = '__all__'
 
 class BookSerializer(serializers.ModelSerializer):
