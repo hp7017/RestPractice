@@ -4,9 +4,9 @@ from rest_framework import generics
 
 # Create your views here.
 
-class AppDetail(generics.RetrieveAPIView):
-	queryset = models.App.objects.all()
-	serializer_class = serializers.AppSerializer
+class EnvirementVariableDetail(generics.RetrieveAPIView):
+	queryset = models.EnvirementVariable.objects.all()
+	serializer_class = serializers.EnvirementVariableSerializer
 
 class CUserList(generics.CreateAPIView):
 	serializer_class = serializers.CUserSerializer
