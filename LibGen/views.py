@@ -33,7 +33,15 @@ class CreateSearch(APIView):
 class CreateUser(generics.CreateAPIView):
 	serializer_class = serializers.CUserSerializer
 
+class UserDetail(generics.RetrieveAPIView):
+	queryset = models.CUser.objects.all()
+	serializer_class = serializers.CUserSerializer
 
+class BookListTop10(APIView):
+	def get(self, request):
+		top_10_books = models.Book.objects.all()[:10]
+		book_serializer = serializers.BookSerializer(top_10_books, many=True)
+		return Response(book_serializer.data, status.HTTP_200_OK)
 
 
 class ReadEnvirementVariable(generics.RetrieveAPIView):
