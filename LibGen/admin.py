@@ -16,7 +16,7 @@ class CUserInline(admin.TabularInline):
 
 class CuserAdmin(admin.ModelAdmin):
 	readonly_fields = ['created', 'last_login']
-	list_filter = ('status', 'created', 'last_login', 'version')
+	list_filter = ('status', 'created', 'last_login', 'version', 'platform')
 	list_display = ('name', 'status', 'last_login')
 	inlines = [SearchInline]
 	actions = ['add_receiver']
