@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>{% block title %}{% endblock %} - Library Genesis App</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	{% load static %}
+</head>
+<body>
+	<header>
+		<h1>Library Genesis</h1>
+	</header>
+	<nav>
+		<form action="{% url 'index' %}" method="get">
+			{% csrf_token %}
+			<input type="text" placeholder="Search here" name="query">
+			<input type="submit" value="Go">
+		</form>
+		<ul>
+			<li><a href="{% url 'index' %}">Home</a></li>
+			<li><a href="{% url 'cusers' %}">CUsers</a></li>
+		</ul>
+	</nav>
+	<main>
+		{% block main %}{% endblock %}
+	</main>
+	<footer>
+	</footer>
+</body>
+</html>
