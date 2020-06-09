@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+	{{ query }}
+	{% if try_again or no_result_found %}
+		-No result found!
+	{% endif %}
+{% endblock %}
+{% block head %}
+	<link rel="stylesheet" type="text/css" href="{% static 'search-result.css' %}">
+{% endblock %}
+{% block main %}
+	<div class="flx">
+		{% if try_again %}
+			<p class="msg-error">Opps connection slips please try again!</p>
+		{% elif no_result_found %}
+			<p class="msg-error">No result found for <span class="highlight"><em>{{query}}</em></span> check spellings or try other keywords!</p>
+		{% else %}
+			{% for book in books %}
+				<section>
+					<h2><a href="{{ book.link }}">{{ book.title }}</a></h2>
+					<div class="table-scroll">
+						<table>
+							<tr>
+								<td>Author</td>
+								<td>{{ book.author }}</td>
+							</tr>
+							<tr>
+								<td>Size</td>
+								<td>{{ book.size }}</td>
+							</tr>
+							<tr>
+								<td>Extension</td>
+								<td>{{ book.extension }}</td>
+							</tr>
+						</table>
+					</div>	
+				</section>
+			{% endfor %}
+		{% endif %}
+	</div>
+	<div class="sidebar">
+		{% if having_related_words %}
+			<aside>
+				<h2>Would you like to try these keywords instead?</h2>
+				{% for word in words %}
+					{% if word.synonyms %}
+						<h3>{{ word.word }}</h3>
+						<ul>
+							{% for synonym in word.synonyms %}
+								<li><em><a href="">{{ synonym }}</a></em></li>
+							{% endfor %}
+						</ul>
+					{% endif %}
+				{% endfor %}
+			</aside>
+		{% endif %}
+		{% if having_definitions %}
+			<aside>
+				<h2>Did you know?</h2>
+				{% for word in words %}
+					{% if word.definitions %}
+						<h3>{{ word.word }}</h3>
+						<ul>
+							{% for definition in word.definitions %}
+								<li>{{ definition }}</li>
+							{% endfor %}
+						</ul>
+					{% endif %}
+				{% endfor %}
+		{% else %}
+			<div class="no_found_related_keyword">
+				<h2><i class="material-icons error">error</i></h2>
+				<p>Could not find any related keyword.</p>
+			</div>
+			</aside>
+		{% endif %}
+	</div>
+{% endblock %}

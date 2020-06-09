@@ -1,0 +1,45 @@
+main {
+	display: grid;
+	padding: 20px;
+	align-items: start;
+}
+
+.highlight {
+	background-color: #ecf0f1;
+}
+
+main p.msg-error {
+	color: #e74c3c;
+	text-align: center;
+	font-size: 2rem;
+}
+
+div.flx {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	margin: 5px;
+}
+
+aside {
+	margin: 20px;
+}
+
+section{
+	margin: 20px;
+}
+
+div.no_found_related_keyword {
+	text-align: center;
+}
+
+i.error {
+	font-size: 70px;
+	color: #7f8c8d;
+}
+
+@media screen and (min-width: 1025px) {
+	main {
+		grid-template-columns: 2fr 1fr;
+	}
+}

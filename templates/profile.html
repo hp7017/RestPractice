@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Profile{% endblock %}
+{% block head %}
+	<link rel="stylesheet" type="text/css" href="{% static 'profile.css' %}">
+{% endblock %}
+{% block main %}
+	<section>
+		<img src="{% static 'profile-resize.jpg' %}" alt="Profile Pic">
+		<h2>Himanshu Pharawal</h2>
+		<div class="table-scroll">
+			<table>
+				<tr>
+					<td>Email</td>
+					<td>himanshupharawal100@gmail.com</td>
+				</tr>
+				<tr>
+					<td>Total no. of books downloads</td>
+					<td>17</td>
+				</tr>
+				<tr>
+					<td>Total no. of <a href="" alt="Evaluation introduction link" title="What is evalution">evalutions</a> created</td>
+					<td>4</td>
+				</tr>
+			</table>
+		</div>
+	</section>
+	<aside class="linked-books">
+		<h2>Books Linked to your profile</h2>
+		<ul>
+			<li><a href="">Python 3</a></li>
+			<li><a href="">Python The hard way</a></li>
+			<li><a href="">Let us C</a></li>
+			<li><a href="">Exploring Python</a></li>
+			<li><a href="">Exploring C</a></li>
+		</ul>
+	</aside>
+	<aside class="evalutions">
+		<h2>Evaluation Created by you</h2>
+		<ul>
+			<li><a href="">Python 3</a></li>
+			<li><a href="">Python The hard way</a></li>
+			<li><a href="">Let us C</a></li>
+			<li><a href="">Exploring Python</a></li>
+			<li><a href="">Exploring C</a></li>
+		</ul>
+	</aside>
+{% endblock %}

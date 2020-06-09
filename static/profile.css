@@ -1,0 +1,43 @@
+main {
+	padding: 20px;
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	grid-gap: 40px;
+	grid-template-areas:
+		"detail detail detail"
+		"linked-books linked-books linked-books"
+		"evalutions evalutions evalutions"
+}
+section {
+	grid-area: detail;
+	display: grid;
+	grid-template-rows: repeat(3, auto);
+	grid-gap: 20px;
+	justify-content: center;
+}
+
+section>img {
+	margin: 0 auto;
+	max-width: 100%;
+	border-radius: 90px;
+}
+
+section>h2 {
+	text-align: center;
+}
+
+aside.linked-books {
+	grid-area: linked-books
+}
+
+aside.evalutions {
+	grid-area: evalutions
+}
+
+@media screen and (min-width: 480px) {
+	main {
+		grid-template-areas: 
+			"detail detail linked-books"
+			"detail detail evalutions"
+	}
+}

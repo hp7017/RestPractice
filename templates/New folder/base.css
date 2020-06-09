@@ -1,0 +1,117 @@
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+html {
+	font-family: sans-serif;
+	font-size: 25px;
+}
+
+body {
+	display: grid;
+	grid-template-rows: max-content auto max-content;
+	grid-gap: 20px;
+}
+
+p {
+	color: #34495e;
+	font-size: .7rem;
+	margin: 10px 0;
+}
+
+a {
+	text-decoration: none;
+	color: #3498db;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+tr {
+	border-bottom: 1px solid grey;
+}
+
+td {
+	padding: 20px;
+}
+
+ul {
+	padding-left: 50px;
+}
+
+cite {
+	background-color: #ecf0f1;
+}
+
+input {
+	display: block;
+	padding: 15px;
+}
+
+header {
+	display: grid;
+	grid-template-columns: max-content auto max-content;
+	grid-gap: 20px;
+	align-items: center;
+	padding: 10px;
+	box-shadow: 1px 1px 8px grey;
+	grid-template-areas:
+		"logo logo profile"
+		"nav nav nav"
+}
+
+nav>form {
+	display: grid;
+	grid-template-columns: auto max-content;
+}
+
+.profile {
+	grid-area: profile;
+}
+
+header>nav {
+	grid-area: nav;
+}
+
+header>div.signature {
+	display: grid;
+	grid-template-columns: repeat(2, auto);
+	justify-content: start;
+	align-items: center;
+	grid-gap: 10px;
+	grid-area: logo;
+}
+
+header>a>img.profile {
+	width: 55px;
+	border-radius: 30px;
+}
+
+header>div>img.logo {
+	width: 50px;
+}
+
+div.table-scroll {
+	overflow-x: auto;
+}
+
+header h1 {
+	font-size: 0.8rem;
+}
+
+footer {
+	text-align: center;
+	padding: 10px;
+	box-shadow: 0 0 1px black;
+	padding: 10px;
+}
+
+@media screen and (min-width: 480px) {
+	header {
+		grid-template-areas:
+			"logo nav profile"
+	}	
+}

@@ -1,0 +1,61 @@
+main {
+	padding: 20px;
+	display: grid;
+	grid-template-columns: 2fr 1fr 1fr;
+	grid-gap: 40px;
+	grid-template-areas: 
+		"welcome welcome welcome"
+		"recommended-books recommended-books recommended-books"
+		"user-bio user-bio user-bio"
+}
+
+form {
+	display: grid;
+	grid-template-columns: auto max-content;
+}
+
+section.welcome {
+	display: grid;
+	grid-template-rows: repeat(4, auto);
+	justify-content: center;
+	grid-gap: 20px;
+	text-align: center;
+	grid-area: welcome;
+	align-self: center;
+}
+
+aside.recommended-books {
+	grid-area: recommended-books;
+}
+
+aside.user-bio {
+	grid-area: user-bio;
+}
+
+header {
+	display: grid;
+	grid-template-columns: max-content max-content;
+	grid-row-gap: 20px;
+	justify-content: space-between;
+	align-items: center;
+	padding: 10px;
+	grid-gap: 20px;
+	box-shadow: 1px 1px 8px grey;
+	grid-template-areas:
+		"logo profile"
+}
+
+@media screen and (min-width: 480px) {
+	main {
+		grid-template-areas: 
+			"welcome recommended-books recommended-books"
+			"user-bio user-bio user-bio"
+	}
+}
+
+@media screen and (min-width: 1025px) {
+	main {
+		grid-template-areas: 
+			"welcome recommended-books user-bio"
+	}
+}

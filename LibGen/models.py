@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.shortcuts import reverse
 
 # Create your models here.
 
@@ -14,7 +15,10 @@ class Subscriber(models.Model):
 class Msg(models.Model):
 	subscriber = models.ForeignKey(Subscriber, related_name='msgs', on_delete=models.CASCADE)
 	subject = models.CharField(max_length=500)
-	content = models.TextField() 
+	content = models.TextField()
+
+	def __str__(self):
+		return self.subject
 
 
 class Search(models.Model):
@@ -36,3 +40,6 @@ class Book(models.Model):
 
 	class Meta:
 		ordering = ['-date']
+
+	def get_absolute_url(self):
+		return reverse('books', kwargs={'pk': self.id})
