@@ -30,8 +30,18 @@ aside.linked-books {
 	grid-area: linked-books
 }
 
+aside.linked-books input.linked-books-input {
+	background-color: transparent;
+	color: #3498db;
+	border: none;
+}
+
 aside.evalutions {
 	grid-area: evalutions
+}
+
+aside p.error-msg{
+	color: #e74c3c;
 }
 
 @media screen and (min-width: 480px) {

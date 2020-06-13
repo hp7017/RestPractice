@@ -6,6 +6,8 @@
 	<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1">
 	<link rel="stylesheet" type="text/css" href="{% static 'base.css' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'index.css' %}">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
 </head>
 <body>
 	<header>
@@ -30,17 +32,25 @@
 		</section>
 		<aside class="recommended-books">
 			<h2>These books are waiting for you</h2>
-			<ul>
-				<li><a href="">Python 3</a></li>
-				<li><a href="">Python The hard way</a></li>
-				<li><a href="">Let us C</a></li>
-				<li><a href="">Exploring Python</a></li>
-				<li><a href="">Exploring C</a></li>
-			</ul>
+			<div>
+				{% for sponsored_book in sponsored_books %}
+						<a href="{{ sponsored_book.obj.redirect_link }}"><img src="{{ sponsored_book.obj.thumbnail }}" alt="{{ sponsored_book.obj.title }}" class="featured_books"></a>
+				{% endfor %}
+			</div>
 		</aside>
 		<aside class="user-bio">
 			<h2>This is what we collect about you</h2>
-			<p>Hi Himanshu, we congratulate you for you journey to great future If you could only think of “human with face,” or “professional needs job,” you’ve come to the right place. Learning how to write a bio is not easy; defining yourself in a few words even less so. But never fear—you can do it! Taking a few minutes to think about what you’re about isn’t just a great writing exercise, it’s a clarifying moment of personal development. Here are a few ways you can get started on your professional, website, LinkedIn, or short bio.</p>
+			<p>Hi Himanshu, we congratulate you for you journey to great future with reading books. Collected data (<em>your interests</em>) is truely based on your searchs and and downloaded books. 
+			{% if user %}
+			You have shown your interests in these topics</p>
+				<ul>
+					{% for intrest in user.intrests.all|slice:":5" %}
+						<li>{{ intrest.keyword }}</li>
+					{% endfor %}
+				</ul>
+			<p>and many more.
+			{% endif %}
+			<br>You will be seen <a href="">sponsored books</a> on search result as well as on <a href="">royal places</a>(<em>Home Page</em>) based on your intrests. Collected interests will keep updating as per your inputs.</p>
 		</aside>
 	</main>
 	<footer>

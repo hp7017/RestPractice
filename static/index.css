@@ -28,8 +28,23 @@ aside.recommended-books {
 	grid-area: recommended-books;
 }
 
+aside.recommended-books>div {
+	margin-top: 20px;
+}
+
 aside.user-bio {
 	grid-area: user-bio;
+}
+
+aside.user-bio ul {
+	font-size: 0.7rem;
+}
+
+aside img.featured_books {
+	width: 90px;
+	height: 150px;
+	margin: 1px;
+	border: 1px solid grey;
 }
 
 header {

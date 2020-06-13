@@ -12,37 +12,44 @@
 			<table>
 				<tr>
 					<td>Email</td>
-					<td>himanshupharawal100@gmail.com</td>
+					<td>{{ user.email }}</td>
 				</tr>
 				<tr>
 					<td>Total no. of books downloads</td>
-					<td>17</td>
+					<td>{{ user.books.count }}</td>
 				</tr>
 				<tr>
 					<td>Total no. of <a href="" alt="Evaluation introduction link" title="What is evalution">evalutions</a> created</td>
-					<td>4</td>
+					<td>{{ user.evaluations.count }}</td>
 				</tr>
 			</table>
 		</div>
 	</section>
 	<aside class="linked-books">
 		<h2>Books Linked to your profile</h2>
-		<ul>
-			<li><a href="">Python 3</a></li>
-			<li><a href="">Python The hard way</a></li>
-			<li><a href="">Let us C</a></li>
-			<li><a href="">Exploring Python</a></li>
-			<li><a href="">Exploring C</a></li>
-		</ul>
+		{% if user.books.all %}
+			<ul>
+				{% for book in user.books.all|slice:":5" %}
+				<li><a href="{% url 'books' pk=book.id %}">{{ book.name }}</a></li>
+				{% endfor %}
+			</ul>
+			<p>and <a href="">many more</a>.</p>
+		{% else %}
+			<p class="error-msg">You have not downloaded any book</p>
+		{% endif %}
 	</aside>
 	<aside class="evalutions">
 		<h2>Evaluation Created by you</h2>
-		<ul>
-			<li><a href="">Python 3</a></li>
-			<li><a href="">Python The hard way</a></li>
-			<li><a href="">Let us C</a></li>
-			<li><a href="">Exploring Python</a></li>
-			<li><a href="">Exploring C</a></li>
-		</ul>
+		{% if user.evaluations.all %}
+			<ul>
+				{% for evaluation in user.evaluations.all|slice:":5" %}
+				<li><a href="">{{ evaluation.name }}</a> for {{ evaluation.book }}</li>
+				{% endfor %}
+			</ul>
+			<p>and <a href="">many more</a>.</p>
+		{% else %}
+			<p class="error-msg">You have not created any <a href="">evaluation</a>.</p>
+			<p>Evaluations are the <strong>quiz</strong> based <strong>test</strong> created by you for a particular <strong>book</strong>, which will be visible for other readers. <a href="https://www.thoughtco.com/the-purpose-of-tests-7688#:~:text=They%20are%20used%20to%20determine,the%20effectiveness%20of%20educational%20programs."><cite>So that other readers can evalute themself that they have learnt what they have expected to learn</cite></a></p>
+		{% endif %}
 	</aside>
 {% endblock %}
