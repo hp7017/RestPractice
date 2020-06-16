@@ -3,6 +3,7 @@ main {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
 	grid-gap: 40px;
+	align-items: start;
 	grid-template-areas:
 		"detail detail detail"
 		"linked-books linked-books linked-books"

@@ -19,7 +19,7 @@
 					<td>{{ user.books.count }}</td>
 				</tr>
 				<tr>
-					<td>Total no. of <a href="" alt="Evaluation introduction link" title="What is evalution">evalutions</a> created</td>
+					<td>Total no. of <a href="{% url 'evaluations' %}" alt="Evaluation introduction link">evalutions</a> created</td>
 					<td>{{ user.evaluations.count }}</td>
 				</tr>
 			</table>
@@ -27,7 +27,7 @@
 	</section>
 	<aside class="linked-books">
 		<h2>Books Linked to your profile</h2>
-		{% if user.books.all %}
+		{% if user.books.exists %}
 			<ul>
 				{% for book in user.books.all|slice:":5" %}
 				<li><a href="{% url 'books' pk=book.id %}">{{ book.name }}</a></li>
@@ -40,10 +40,10 @@
 	</aside>
 	<aside class="evalutions">
 		<h2>Evaluation Created by you</h2>
-		{% if user.evaluations.all %}
+		{% if user.evaluations.exists %}
 			<ul>
 				{% for evaluation in user.evaluations.all|slice:":5" %}
-				<li><a href="">{{ evaluation.name }}</a> for {{ evaluation.book }}</li>
+				<li><a href="{{ evaluation.link }}">{{ evaluation.title }}</a> for {{ evaluation.book }}</li>
 				{% endfor %}
 			</ul>
 			<p>and <a href="">many more</a>.</p>

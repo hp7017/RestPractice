@@ -91,11 +91,24 @@ class SponsoredBook(models.Model):
 		ordering = ['-bid']
 
 class Keyword(models.Model):
+
 	sponsored_book = models.ForeignKey(SponsoredBook, related_name='keywords', on_delete=models.CASCADE)
-	title = models.CharField(max_length=50)
+	title = models.CharField(max_length=50, unique=True)
+
+	def clean(self):
+		self.title = self.title.lower()
 
 	def __str__(self):
 		return self.title
 
 	class Meta:
 		ordering = ['title']
+
+class Evaluation(models.Model):
+	user = models.ForeignKey(User, related_name='evaluations', on_delete=models.CASCADE)
+	book = models.ForeignKey(Book, related_name='evaluations', on_delete=models.CASCADE)
+	title = models.CharField(max_length=300)
+	link = models.URLField()
+
+	def __str__(self):
+		return self.title

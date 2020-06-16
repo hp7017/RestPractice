@@ -1,0 +1,60 @@
+section a.create-evaluation {
+	background-color: #3498db;
+	color: white;
+	padding: 5px 7px;
+	font-size: .7rem;
+	box-shadow: 0 0 2px grey
+}
+
+section, article, aside {
+	margin: 30px;
+	/*border: 1px solid green;*/
+}
+
+section>form {
+	display: flex;
+	flex-wrap: wrap;
+	align-content: space-around;
+}
+
+h2 {
+	margin-bottom: 10px;
+}
+
+ol {
+	margin-left: 30px;
+	font-size: .7rem;
+}
+
+.sidebar {
+	grid-area: sidebar;
+}
+
+.content {
+	grid-area: conten;
+}
+
+section>form>input, section>form>select {
+	flex: 1;
+}
+
+.warning {
+	color: #95a5a6;
+}
+
+@media screen and (min-width: 480px) {
+	div.flx {
+		display: grid;
+		grid-template-areas: 
+			"section section";
+	}
+}
+
+@media screen and (min-width: 1025px) {
+	main {
+		display: grid;
+		grid-template-columns: 2fr 1fr;
+		grid-template-areas:
+			"conten sidebar";
+	}
+}

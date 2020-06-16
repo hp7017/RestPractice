@@ -7,7 +7,8 @@ from django.contrib.auth.models import User
 import requests
 from bs4 import BeautifulSoup
 from textblob import Word
-from django.db.models import Q
+from django.db.models import Count, Subquery
+from django.db.models.functions import Lower
 
 # Create your views here.
 
@@ -32,43 +33,23 @@ class CustomSponsoredBook():
 class Index(View):
 
 	def get(self, request):
-		user = get_object_or_404(User, id=3)
-		intrests = user.intrests.all()
-		final_sponsored_books = []
-		count = 0
-		for intrest in intrests:
-			print(intrest)
-			sponsored_books = models.SponsoredBook.objects.filter(verified=True, keywords__title__iexact=intrest)
-			print(sponsored_books)
-			if sponsored_books.exists():
-				sponsored_books = list(sponsored_books)
-				for sponsored_book in sponsored_books:
-					should_continue = False
-					for custom_sponsored_book in final_sponsored_books:
-						if custom_sponsored_book.obj == sponsored_book:
-							custom_sponsored_book.points += 1
-							should_continue =True
-							break
-					if should_continue:
-						continue
-					custom_sponsored_book = CustomSponsoredBook()
-					custom_sponsored_book.obj = sponsored_book
-					final_sponsored_books.append(custom_sponsored_book)
-			if len(final_sponsored_books) == 6:
-				break
-		final_sponsored_books.sort(key=lambda x: x.points, reverse=True)
+		user = User.objects.filter(id=3).prefetch_related('intrests')
+		sub = Subquery(user[0].intrests.annotate(key=Lower('keyword')).values('key'))
+		sponsored_books = models.SponsoredBook.objects.annotate(tit=Lower('keywords__title')).filter(tit__in=sub).annotate(points=Count('id')).order_by('-points', '-bid')[:6]
+		all_sponsored_books = models.SponsoredBook.objects.all()[:6]
 		context = {
-			'user': user,
-			'sponsored_books': final_sponsored_books
+			'user': user[0],
+			'sponsored_books': sponsored_books,
+			'all_sponsored_books': all_sponsored_books
 		}
 		return render(request, 'index.html', context=context)
 
 class Profile(View):
 
 	def get(self, request):
-		user = get_object_or_404(User, id=3)
+		user = User.objects.filter(id=3).prefetch_related('evaluations', 'books')
 		context = {
-			'user' : user
+			'user' : user[0]
 		}
 		return render(request, 'profile.html', context=context)
 
@@ -167,3 +148,20 @@ class BookDetail(Search):
 		book = get_object_or_404(models.Book, id=pk)
 		context = self.parsed(search=book.name)
 		return render(request, 'search-result.html', context=context)
+
+class Evaluation(View):
+
+	def get(self, request):
+		user = User.objects.filter(id=3).prefetch_related('books')
+		context = {
+			'user': user[0]
+		}
+		return render(request, 'evaluations.html', context=context)
+
+	def post(self, request):
+		pk = request.POST.get('books')
+		book = models.Book.objects.get(id=pk)
+		title = request.POST.get('title')
+		link = request.POST.get('link')
+		models.Evaluation.objects.create(book=book, title=title, link=link)
+		return HttpResponseRedirect(reverse('evaluations'))

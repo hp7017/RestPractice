@@ -33,15 +33,21 @@
 		<aside class="recommended-books">
 			<h2>These books are waiting for you</h2>
 			<div>
-				{% for sponsored_book in sponsored_books %}
-						<a href="{{ sponsored_book.obj.redirect_link }}"><img src="{{ sponsored_book.obj.thumbnail }}" alt="{{ sponsored_book.obj.title }}" class="featured_books"></a>
-				{% endfor %}
+				{% if sponsored_books.exists %}
+					{% for sponsored_book in sponsored_books %}
+							<a href="{{ sponsored_book.redirect_link }}"><img src="{{ sponsored_book.thumbnail }}" alt="{{ sponsored_book.title }}" class="featured_books"></a>
+					{% endfor %}
+				{% else %}
+					{% for sponsored_book in all_sponsored_books %}
+							<a href="{{ sponsored_book.redirect_link }}"><img src="{{ sponsored_book.thumbnail }}" alt="{{ sponsored_book.title }}" class="featured_books"></a>
+					{% endfor %}
+				{% endif %}
 			</div>
 		</aside>
 		<aside class="user-bio">
 			<h2>This is what we collect about you</h2>
 			<p>Hi Himanshu, we congratulate you for you journey to great future with reading books. Collected data (<em>your interests</em>) is truely based on your searchs and and downloaded books. 
-			{% if user %}
+			{% if user.intrests.exists %}
 			You have shown your interests in these topics</p>
 				<ul>
 					{% for intrest in user.intrests.all|slice:":5" %}
