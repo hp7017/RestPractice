@@ -1,0 +1,171 @@
+article, section, aside {
+	margin: 30px;
+}
+
+details {
+	margin: 20px;
+}
+
+h2 {
+	margin-bottom: 10px;
+}
+
+div.msg {
+	display: flex;
+	justify-content: center;
+}
+
+article {
+	padding: 10px;
+	border-radius: 10px;
+}
+
+input[type='file'] {
+	height: 49px;
+}
+
+article.failure {
+	border: 1px solid #e74c3c;
+	color: #e74c3c;
+}
+
+article.success {
+	border: 1px solid #2ecc71;
+	color: #2ecc71;
+}
+
+div.image-scroll {
+	overflow-x: auto;
+	max-width: calc(100vw - 40px);
+}
+
+details>img {
+	display: block;
+	max-width: 100%;
+}
+
+div.warning {
+	border:  1px solid #e74c3c;
+	color:  #e74c3c;
+	display:  flex;
+	align-items: flex-start;
+	align-items: center;
+}
+
+section>form>ul {
+	padding: 0;
+	display: flex;
+	flex-flow: row wrap;
+}
+
+section>form>ul>* {
+	list-style-type: none;
+	margin: 2px;
+	flex: 1 auto;
+}
+
+section>form>ul>li>ul, section>form>fieldset>ul>li>ul, section>form>fieldset>ul>ul {
+	padding: 5px;
+    color: red;
+    padding-top: 10px;
+    list-style-type: none;
+    border: 1px solid #e74c3c;
+    margin-top: 10px;
+    border-radius: 3px;
+}
+
+section>form>fieldset>ul>li>ul, section>form>fieldset>ul>ul {
+	margin: 5px;
+}
+
+section>form>fieldset {
+	margin: 20px 0;
+}
+
+section>form>fieldset>legend {
+	font-size:  .8rem;
+}
+
+section>form>fieldset>ul {
+	padding: 0;
+	display: flex;
+	flex-flow: row wrap;
+	list-style-type: none;
+	padding: 5px
+}
+
+section>form>fieldset>ul>li {
+	margin: 5px;
+}
+
+section>form>fieldset>ul>li>label {
+	display: none;
+}
+
+aside>form>p.error {
+	border: 1px solid #e74c3c;
+	color: #e74c3c;
+	padding: 5px;
+	border-radius: 5px;
+	display: none;
+}
+
+aside:last-of-type>p {
+	display: none;
+}
+
+@media screen and (min-width: 480px) {
+	details.our-traffic {
+		grid-area: our-traffic;
+	}
+
+	details.bonus-tip {
+		grid-area: bonus-tip;
+	}
+
+	details.plug-play {
+		grid-area: plug-play;
+	}
+
+	details.biding-system {
+		grid-area: biding-system;
+	}
+
+	div.flx-1 {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		grid-area: fl;
+		grid-template-areas:
+				"our-traffic our-traffic our-traffic"
+				"bonus-tip plug-play biding-system";
+	}
+
+	.sec {
+		grid-area: sec;
+	}
+
+	.billing {
+		grid-area: billing;
+	}
+
+	.related {
+		grid-area: related;
+	}
+
+	.flx-2 {
+		display: grid;
+		grid-template-columns: 2fr 1fr;
+		align-items: start;
+		grid-template-areas: 
+			"sec related"
+			"billing billing";
+	}
+}
+
+@media screen and (min-width: 1025px) {
+	.flx-2 {
+		grid-template-columns: 2fr 1fr 1fr;
+		grid-template-areas: 
+			"sec billing related";
+	}
+}

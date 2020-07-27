@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Logout{% endblock %}
+{% block head %}
+	<link rel="stylesheet" type="text/css" href="{% static 'registration.css' %}">
+{% endblock %}
+{% block main %}
+<div class="flx">
+	<section>
+		<p>Logged out!</p>  
+		<a href="{% url 'login'%}">Click here to login again.</a>
+	</section>
+</div>
+{% endblock %}

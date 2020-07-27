@@ -1,15 +1,8 @@
-main {
-	padding: 20px;
-	display: grid;
-	grid-template-columns: repeat(3, 1fr);
-	grid-gap: 40px;
-	align-items: start;
-	grid-template-areas:
-		"detail detail detail"
-		"linked-books linked-books linked-books"
-		"evalutions evalutions evalutions"
+section,aside {
+	margin: 10px;
 }
-section {
+
+main>section {
 	grid-area: detail;
 	display: grid;
 	grid-template-rows: repeat(3, auto);
@@ -17,14 +10,77 @@ section {
 	justify-content: center;
 }
 
-section>img {
+main>section>div:last-of-type {
+	display: flex;
+}
+
+main>section>div:last-of-type>* {
+	margin: 0 20px;
+}
+
+main>section>img {
 	margin: 0 auto;
 	max-width: 100%;
 	border-radius: 90px;
 }
 
-section>h2 {
-	text-align: center;
+.Online {
+	display: flex;
+	align-items: center;
+	color: #2ecc71;
+}
+
+.Offline {
+	display: flex;
+	align-items: center;
+	color: #e74c3c;
+}
+
+.not-verified {
+	color: #f1c40f;
+}
+
+.Online input, .Offline input {
+	padding: 2px 5px
+}
+
+.Online>form *, .Offline>form * {
+	margin: 5px;
+}
+
+main>div {
+	grid-area: sponsored;
+	display: flex;
+	flex-flow: row wrap;
+	padding: 20px;
+}
+
+main>div>section {
+	display: flex;
+	border-radius: 5px;
+	box-shadow: 0 0 5px grey;
+	align-items: center;
+}
+
+main>div>section>img {
+	width: 90px;
+	height: 150px;
+	border-radius: 5px;
+}
+
+main>div>section>div {
+	margin: 0 5px;
+	display: flex;
+	flex-flow: column;
+}
+
+main>div>section>div>table td {
+	padding: 5px;
+}
+
+main>div>section>div>table tr {
+	border-bottom: none;
+	color: #34495e;
 }
 
 aside.linked-books {
@@ -45,10 +101,34 @@ aside p.error-msg{
 	color: #e74c3c;
 }
 
+.recharge {
+	display: flex;
+	flex-flow: row wrap;
+	align-items: center;
+}
+
+.recharge input {
+	padding: 0;
+}
+
+.recharge>input {
+	padding: 5px;
+	width: 90px;
+}
+
+.recharge>* {
+	margin: 5px;
+}
+
 @media screen and (min-width: 480px) {
 	main {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		grid-gap: 40px;
+		align-items: start;
 		grid-template-areas: 
 			"detail detail linked-books"
 			"detail detail evalutions"
+			"sponsored sponsored sponsored"
 	}
 }

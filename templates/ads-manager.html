@@ -1,0 +1,113 @@
+{% extends 'base.html'%}
+{% load static %}
+{% block title %}ADS-Manager{% endblock %}
+{% block head%}
+	<link rel="stylesheet" type="text/css" href="{% static 'ads-manager.css'%}">
+	<script>
+		$(document).ready(function(){
+			$(".sponsored-book-form").submit(function(){
+				$.post("{% url 'create_wallet' %}", {
+					'csrfmiddlewaretoken': $("input[name='csrfmiddlewaretoken']").val()
+				});
+			});
+			$("input[value='Analyse']").parent().submit(function(){
+				console.log($("input[name='keyword']").val());
+				$.get("{% url 'keyword_planner_clicked' %}", {
+					keyword: $("input[name='keyword']").val()
+				}, function(data){
+					console.log(data)
+					if (data.error) {
+						$(".error").attr("style", "display: block").text(data.error)
+					}
+					else {
+						$(".keyword_title").text($("input[name='keyword']").val())
+						$(".estimated_traffic").text(data.estimated_traffic+'%')
+						$(".estimated_bid").text('$'+data.estimated_bid)
+						$(".estimated_traffic").parent().attr("style", "display: block")
+						$(".estimated_bid").parent().attr("style", "display: block")
+					}
+				})
+				return false
+			});
+		});
+	</script>
+{% endblock %}
+{% block main %}
+	{% if failure %}
+		<div class="msg">	
+			<article class="failure">
+				<h2>Book submission Failed</h2>
+				<p>{{ failure }}</p>
+			</article>
+		</div>
+	{% elif success %}
+		<div class="msg">
+			<article class="success">
+				<h2>Book submission succeeded</h2>
+				<p>Book has been submitted successfully! Go to <a href="/profile#sponsored_books">Profile</a> and check the status.</p>
+			</article>
+		</div>
+	{% endif %}
+	<div class="flx-1">
+		<details class="our-traffic">
+			<summary>Here is what we got for you</summary>
+			<div class="image-scroll"><img src="{% static 'our-traffic.png' %}" alt="our traffic"></div>
+			<p>This traffic is ready to read your amazing books.</p>
+		</details>
+		<details class="bonus-tip">
+			<summary>Bonus Tip</summary>
+			<img src="{% static 'new-traffic.png' %}" alt="bonus tip new users">
+			<p>We are having collective new users(visitors) so that you do not waste you money just to show ads to same users for no reason.</p>
+		</details>
+		<details class="plug-play">
+			<summary>Plug and Play</summary>
+			<p>You are just three steps back</p>
+			<ol>
+				<li>Choose you keywords.</li>
+				<li>Bid on <abbr title="Royal places are recommended section on home page">Royal place</abbr>.</li>
+				<li>Submit your book.</li>
+			</ol>
+		</details>
+		<details class="biding-system">
+			<summary>Understand this Bidding system</summary>
+			<p>More you bid more priority will be given to you book(compaired to other place holder for same keywords) as simple as that.</p>
+			<p>In order to simplfy this you can consider biding is more or less like a sorting of books on Royal Place. See <a href="#keyword-planner">keyword planner</a> to identify best keywords and estimated cost for your book.</p>
+		</details>
+	</div>
+	<div class="flx-2">
+		<section class="sec">
+			<h2>You are good to go</h2>
+			<form class="sponsored-book-form" method="post" enctype="multipart/form-data">
+				{% csrf_token %}
+				<ul>
+					{{ form.as_ul }}
+				</ul>
+				<fieldset>
+					<legend>Enter Five awesome Keywords</legend>
+					<ul>
+						{{ keyword_form_set.management_form }}
+						{{ keyword_form_set.non_form_errors}}
+						{% for keyword_form in keyword_form_set %}
+							{{ keyword_form.as_ul }}
+						{% endfor %}
+					</ul>
+				</fieldset>
+				<input type="submit">
+			</form>
+		</section>
+		<aside class="billing" id="keyword-planner">
+			<h2>Pay only when someone clicks on your book</h2>
+			<p>You will not be charged for impression(<em>How many times people see your ads</em>) but for the engagements(<em>Clicks on your book</em>).</p>
+		</aside>
+		<aside class="related">
+			<h2>Keyword Planner</h2>
+			<form>
+				<p class="error"></p>
+				<input type="text" name="keyword">
+				<input type="submit" value="Analyse">
+			</form>
+			<p>Estimated traffic for <strong class="keyword_title">null</strong> is <strong class="estimated_traffic">null</strong>.</p>
+			<p>Estimated bid to be placed as a <em>first link on Royal Place</em> is <strong class="estimated_bid">null</strong>.</p>
+		</aside>
+	</div>
+{% endblock %}

@@ -1,66 +1,51 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html>
-<head>
-	<title>Library Genesis-Home</title>
-	<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1">
-	<link rel="stylesheet" type="text/css" href="{% static 'base.css' %}">
+{% block title %}Home{% endblock %}
+{% block head %}
 	<link rel="stylesheet" type="text/css" href="{% static 'index.css' %}">
-	<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet">
-</head>
-<body>
-	<header>
-		<div class="signature">
-			<img src="{% static 'icon.png' %}" alt="Library Genesis App icon" class="logo">
-			<a href="{% url 'index' %}" class="logo">
-				<h1>Library Genesis App</h1>
-			</a>
+	<script>
+		$(document).ready(function(){
+			$(".featured_book_click").click(function(){
+				$.post("{% url 'sponsored_book_clicked' %}", {
+					csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+					sid : $(this).attr("id")
+				})	
+			})
+		});
+	</script>
+{% endblock %}
+{% block main %}
+	<section class="welcome">
+		<h2>Welcome to Library Genesis App</h2>
+		<p>A Place to look for your favourite books and articles.</p>
+		<form action="{% url 'search' %}" class="search_form">
+			<input type="search" name="query" placeholder="Search book name or author name" required>
+			<input type="submit" value="Go!">
+		</form>
+	</section>
+	<aside class="recommended-books">
+		<h2>These books are waiting for you</h2>
+		<div>
+			{% for sponsored_book in sponsored_books %}
+				<a href="{{ sponsored_book.redirect_link }}" id="{{ sponsored_book.id }}"><img src="/media/{{ sponsored_book.thumbnail }}" alt="{{ sponsored_book.title }}" class="featured_book featured_book_click"  id="{{ sponsored_book.id }}"></a>
+			{% endfor %}
+			{% for i in no_of_blank_spaces %}
+				<a href="{% url 'ads-manager' %}"><img src="{% static 'white.png' %}" class="featured_book" alt="Place you book, Ads manager"></a>
+			{% endfor %}
 		</div>
-		<a href="{% url 'profile' %}"><img src="{% static 'profile-resize.jpg' %}" class="profile" alt="Profile Pic"></a>
-	</header>
-	<main>
-		<section class="welcome">
-			<h2>Welcome to Library Genesis App</h2>
-			<p>A Place to look for your favourite books and articles.</p>
-			<nav>
-				<form action="{% url 'search' %}">
-					<input type="search" name="query" placeholder="Search here">
-					<input type="submit" value="Go!">
-				</form>	
-			</nav>
-		</section>
-		<aside class="recommended-books">
-			<h2>These books are waiting for you</h2>
-			<div>
-				{% if sponsored_books.exists %}
-					{% for sponsored_book in sponsored_books %}
-							<a href="{{ sponsored_book.redirect_link }}"><img src="{{ sponsored_book.thumbnail }}" alt="{{ sponsored_book.title }}" class="featured_books"></a>
-					{% endfor %}
-				{% else %}
-					{% for sponsored_book in all_sponsored_books %}
-							<a href="{{ sponsored_book.redirect_link }}"><img src="{{ sponsored_book.thumbnail }}" alt="{{ sponsored_book.title }}" class="featured_books"></a>
-					{% endfor %}
-				{% endif %}
-			</div>
-		</aside>
-		<aside class="user-bio">
-			<h2>This is what we collect about you</h2>
-			<p>Hi Himanshu, we congratulate you for you journey to great future with reading books. Collected data (<em>your interests</em>) is truely based on your searchs and and downloaded books. 
-			{% if user.intrests.exists %}
-			You have shown your interests in these topics</p>
-				<ul>
-					{% for intrest in user.intrests.all|slice:":5" %}
-						<li>{{ intrest.keyword }}</li>
-					{% endfor %}
-				</ul>
-			<p>and many more.
-			{% endif %}
-			<br>You will be seen <a href="">sponsored books</a> on search result as well as on <a href="">royal places</a>(<em>Home Page</em>) based on your intrests. Collected interests will keep updating as per your inputs.</p>
-		</aside>
-	</main>
-	<footer>
-		<a href="{% url 'disclaimer' %}">Disclaimer</a>
-	</footer>
-</body>
-</html
+	</aside>
+	<aside class="user-bio">
+		<h2>This is what we collect about you</h2>
+		<p>Hi {% if user.is_authenticated %}{{user.username}}{% else %}There{% endif %}, we congratulate you for your journey to a great future with reading books. Collected data (<em>your interests</em>) are truly based on your searches and downloaded books. 
+		{% if user.intrests.exists %}
+		You have shown your interests in these topics</p>
+			<ul>
+				{% for intrest in user.intrests.all|slice:":5" %}
+					<li>{{ intrest.keyword }}</li>
+				{% endfor %}
+			</ul>
+		<p>and many more.
+		{% endif %}
+		<br>You will be seen <a href="{% url 'ads-manager' %}">sponsored books</a> on search result as well as on <a href="{% url 'ads-manager' %}">royal places</a>(<em>Home Page</em>) based on your interests. Collected interests will keep updating as per your inputs.</p>
+	</aside>
+{% endblock %}

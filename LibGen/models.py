@@ -1,39 +1,40 @@
-
 from django.db import models
 from django.contrib.auth.models import User
 from django.shortcuts import reverse
 from django.core.exceptions import ValidationError
 from django.core.files.images import get_image_dimensions
+from django.core.validators import MinValueValidator
 
 # Create your models here.
+
+class Profile(models.Model):
+
+	def user_directory_path(self, filename):
+		return 'user_{0}/{1}'.format(self.user.id, filename)
+
+	def validate_image(fieldfile_obj):
+		if get_image_dimensions(fieldfile_obj) != (180, 180):
+			raise ValidationError("Thumnail should be exact 180*180")
+
+	user = models.OneToOneField(User, related_name='of_profile', on_delete=models.CASCADE)
+	pic = models.ImageField(upload_to=user_directory_path, validators=[validate_image], blank=True)
+	balance = models.FloatField(default=0, validators=[MinValueValidator(0)])
+	phone = models.CharField(max_length=15)
 
 class Intrest(models.Model):
 	user = models.ForeignKey(User, related_name='intrests', on_delete=models.CASCADE)
 	keyword = models.CharField(max_length=100)
 	created_on = models.DateTimeField(auto_now_add=True)
 
+	def clean(self):
+		self.keyword = self.keyword.lower()
+		super().clean(self)
+
 	def __str__(self):
 		return self.keyword
 
 	class Meta:
 		ordering = ['-created_on']
-
-class Subscriber(models.Model):
-	name = models.CharField(max_length=100)
-	email = models.EmailField()
-	created_on = models.DateTimeField(auto_now_add=True)
-
-	def __str__(self):
-		return self.name
-
-class Msg(models.Model):
-	subscriber = models.ForeignKey(Subscriber, related_name='msgs', on_delete=models.CASCADE)
-	subject = models.CharField(max_length=500)
-	content = models.TextField()
-
-	def __str__(self):
-		return self.subject
-
 
 class Search(models.Model):
 	user = models.ForeignKey(User, related_name='searchs', on_delete=models.CASCADE)
@@ -45,6 +46,7 @@ class Search(models.Model):
 
 class Book(models.Model):
 	user = models.ForeignKey(User, related_name='books', on_delete=models.CASCADE)
+	slug = models.SlugField(max_length=5000)
 	search = models.ForeignKey(Search, related_name='books', on_delete=models.CASCADE)
 	name = models.CharField(max_length=5000)
 	date = models.DateTimeField(auto_now_add=True)
@@ -56,13 +58,19 @@ class Book(models.Model):
 		ordering = ['-date']
 
 	def get_absolute_url(self):
-		return reverse('books', kwargs={'pk': self.id})
+		return reverse('books', kwargs={'slug': self.slug, 'pk': self.id})
 
 class SponsoredBook(models.Model):
 
 	places = (
-			('Royal Place', 'Royal Place'),
-			('Search Result', 'Search Result')
+			('Royal-Place', 'Royal Place'),
+			('Search-Result', 'Search Result')
+		)
+
+	statuses = (
+			('Online', 'Online'),
+			('Offline', 'Offline'),
+			('Insufficient Balance', 'Insufficient-Balance')
 		)
 
 	def validate_image(fieldfile_obj):
@@ -71,18 +79,17 @@ class SponsoredBook(models.Model):
 	user = models.ForeignKey(User, related_name='sponsored_books', on_delete=models.CASCADE)
 
 	def user_directory_path(self, filename):
-		return 'media/user_{0}/{1}'.format(self.user.id, filename)
+		return 'user_{0}/{1}'.format(self.user.id, filename)
 	
 	title = models.CharField(max_length=20)
-	bid = models.FloatField()
+	bid = models.FloatField(validators=[MinValueValidator(0.1)])
 	placed_on = models.CharField(choices=places, max_length=20)
-	description = models.TextField()
-	height = models.PositiveIntegerField()
-	width = models.PositiveIntegerField()
-	verified = models.BooleanField(default=False)
-	thumbnail = models.ImageField(upload_to=user_directory_path, height_field='height', width_field='width', validators=[validate_image])
+	status = models.CharField(max_length=100, choices=statuses, default='Online')
+	thumbnail = models.ImageField(upload_to=user_directory_path, validators=[validate_image])
 	created_on = models.DateTimeField(auto_now_add=True)
 	redirect_link = models.URLField(max_length=500)
+	engadgements_count = models.PositiveIntegerField(default=0)
+	impressions_count = models.PositiveIntegerField(default=0)
 
 	def __str__(self):
 		return str(self.title)
@@ -93,7 +100,7 @@ class SponsoredBook(models.Model):
 class Keyword(models.Model):
 
 	sponsored_book = models.ForeignKey(SponsoredBook, related_name='keywords', on_delete=models.CASCADE)
-	title = models.CharField(max_length=50, unique=True)
+	title = models.CharField(max_length=50)
 
 	def clean(self):
 		self.title = self.title.lower()
@@ -112,3 +119,43 @@ class Evaluation(models.Model):
 
 	def __str__(self):
 		return self.title
+
+class Msg(models.Model):
+	email = models.EmailField(max_length=250)
+	text = models.TextField()
+	created_on = models.DateTimeField(auto_now_add=True)
+
+class Order(models.Model):
+	user = models.ForeignKey(User, related_name='orders', on_delete=models.CASCADE)
+	amount = models.FloatField()
+	reference_id = models.CharField(max_length=500, blank=True)
+	status = models.CharField(max_length=500, default='Opened')
+	payment_mode = models.CharField(max_length=500, blank=True)
+	tx_msg = models.CharField(max_length=500, blank=True)
+	tx_time = models.DateTimeField(auto_now=True)
+
+	def __str__(self):
+		return f'{self.id}'
+
+	class Meta:
+		ordering = ['-tx_time']
+
+class Email(models.Model):
+	subject = models.CharField(max_length=1000)
+	body = models.TextField()
+	from_email = models.EmailField()
+
+	def __str__(self):
+		return f'{self.subject}'
+
+class ToReceiver(models.Model):
+	email = models.ForeignKey(Email, related_name='to_receivers', on_delete=models.CASCADE)
+	receiver_email = models.EmailField()
+
+class CCReceiver(models.Model):
+	email = models.ForeignKey(Email, related_name='cc_receivers', on_delete=models.CASCADE)
+	receiver_email = models.EmailField()
+
+class ReplyTo(models.Model):
+	email = models.ForeignKey(Email, related_name='reply_to', on_delete=models.CASCADE)
+	receiver_email = models.EmailField()

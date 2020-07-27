@@ -109,7 +109,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Calcutta'
 
 USE_I18N = True
 
@@ -130,3 +130,13 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+LOGIN_REDIRECT_URL = '/profile'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'himanshupharawal100@gmail.com'
+EMAIL_HOST_PASSWORD = env.REPAIR
+DEFAULT_FROM_EMAIL = 'Reset <himanshupharawal100@gmail.com>'

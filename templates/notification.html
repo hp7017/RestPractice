@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Notification{% endblock %}
+{% block head %}
+	<link rel="stylesheet" type="text/css" href="{% static 'notification.css' %}">
+	<script>
+		$(document).ready(function(){
+			$(".notification_link").click(function(){
+				$.post("{% url 'notification' %}",
+				{
+					csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+					mark_read : true,
+					nid : $(this).attr('id')
+				})
+			});
+		});
+	</script>
+{% endblock %}
+{% block main %}
+	{% csrf_token %}
+	<div>
+		{% for notification in notifications %}
+			<section class="{% if notification.mark_read %}read{% else %}unread{% endif %}">
+				<h2><a href="/{{ notification.link }}" class="notification_link" id="{{ notification.id }}">{{ notification.heading }}</a></h2>
+				<p>{{ notification.text }}</p>
+			</section>
+		{% endfor %}
+	</div>
+{% endblock %}

@@ -6,13 +6,12 @@
 
 html {
 	font-family: sans-serif;
-	font-size: 15px;
+	font-size: 20px;
 }
 
 body {
 	display: grid;
 	grid-template-rows: max-content auto max-content;
-	grid-gap: 20px;
 }
 
 h3 {
@@ -32,6 +31,7 @@ a {
 
 table {
 	border-collapse: collapse;
+	font-size: .8rem
 }
 
 tr {
@@ -42,83 +42,163 @@ td {
 	padding: 20px;
 }
 
-ul {
+ul, ol {
 	padding-left: 50px;
+	font-size: .7rem;
 }
 
 cite {
 	background-color: #ecf0f1;
 }
 
-input {
+input[type="file"] {
+	border: 1px solid grey;
+}
+
+fieldset {
+	border: 1px solid grey;
+}
+
+input, textarea, select, label{
 	display: block;
-	padding: 15px;
+	padding: 10px 15px;
+	width: 100%;
 }
 
-header {
-	display: grid;
-	grid-template-columns: max-content auto max-content;
-	grid-gap: 20px;
+i {
+	display: block;
+}
+
+legend {
+	margin-left: 50px;
+}
+
+/*header*/
+header>div {
+	display: flex;
+	justify-content: space-between;
 	align-items: center;
-	padding: 10px;
-	box-shadow: 1px 1px 8px grey;
-	grid-template-areas:
-		"logo logo profile"
-		"nav nav nav"
 }
 
-nav>form {
-	display: grid;
-	grid-template-columns: auto max-content;
-}
-
-
-.profile {
-	grid-area: profile;
-}
-
-header>nav {
-	grid-area: nav;
-}
-
-header>div.signature {
-	display: grid;
-	grid-template-columns: repeat(2, auto);
-	justify-content: start;
+header>div>div:first-of-type {
+	display: flex;
 	align-items: center;
-	grid-gap: 10px;
-	grid-area: logo;
 }
 
-header>a>img.profile {
-	width: 55px;
-	border-radius: 30px;
+header>div>div:first-of-type>* {
+	margin: 5px;
 }
 
-header>div>img.logo {
+header>div>div:first-of-type>img {
 	width: 50px;
+	height: 50px;
 }
 
-div.table-scroll {
-	overflow-x: auto;
-}
-
-header h1 {
+header>div>div:first-of-type>h1 {
 	font-size: 1rem;
+}
+
+header>div>form {
+	display: none;
+}
+
+header>div>div:last-of-type {
+	display: flex;
+	align-items: center;
+}
+
+header>div>div:last-of-type>* {
+	margin: 5px;
+}
+/*end header*/
+
+/*navigation*/
+nav>form {
+	display: flex;
+}
+
+nav>form>input:last-of-type {
+	width: max-content;
+}
+/*end navigation*/
+
+summary {
+	font-size: 20px;
+	padding: 10px;
+	border: 1px solid #ecf0f1;
 }
 
 footer {
 	text-align: center;
 	padding: 10px;
 	box-shadow: 0 0 1px black;
-	padding: 10px;
+}
+
+footer>p:last-of-type>a {
+	color: grey;
+}
+
+footer>p>a:last-of-type>span {
+	background-color: #3498db;
+	color: white;
+	padding: 5px 10px;
+	border-radius: 20px;
+	line-height: 3;
+}
+
+.overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background-color: rgba(128,128,128,0.5);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.loader {
+  border: 16px solid #f3f3f3; /* Light grey */
+  border-top: 16px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 @media screen and (min-width: 480px) {
+	/*header*/
+	nav {
+		display: none;
+	}
+
 	header {
-		grid-template-areas:
-			"logo nav profile"
-	}	
+		border-bottom: 1px solid #ecf0f1;
+	}
+
+	header>div {
+		justify-content: stretch;
+	}
+
+	header>div>* {
+		margin: 5px;
+	}
+
+	header>div>form {
+		display: flex;
+		flex-grow: 1;
+	}
+
+	header>div>form>input:last-of-type {
+		width: max-content;
+	}
+	/*end header*/
 
 	html {
 		font-size: 25px;

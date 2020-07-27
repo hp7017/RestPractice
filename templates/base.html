@@ -1,26 +1,45 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en-us">
 <head>
 	<title>Library Genesis - {% block title %}{% endblock %}</title>
 	<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1">
+	<meta name="description" content="{% block description %}Search and download your favourite books for free{% endblock %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'base.css' %}">
-	<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script>
+		$(document).ready(function(){
+			$(".overlay").hide()
+			$(".search_form").submit(function() {
+				$(".overlay").show()
+			});
+		});
+	</script>
 	{% block head %}{% endblock %}
 </head>
 <body>
+	{% csrf_token %}
+	<div class="overlay">
+		<div class="loader"></div>
+	</div>
 	<header>
-		<div class="signature">
-			<img src="{% static 'icon.png' %}" alt="Library Genesis App icon" class="logo">
-			<a href="{% url 'index' %}" class="logo">
-				<h1>Library Genesis App</h1>
-			</a>
+		<div>
+			<div>
+				<img src="{% static 'icon.png' %}" alt="Library Genesis App icon">
+				<h1><a href="{% url 'index' %}">Library Genesis App</a></h1>
+			</div>
+			<form action="{% url 'search' %}" class="search_form">
+				<input type="search" name="query" placeholder="Search book name or author name" required>
+				<input type="submit" value="Go">
+			</form>
+			<div>
+				<p><a href="{% url 'profile' %}" class="profile"><i class="material-icons" style="font-size: 40px">account_circle</i></a></p>
+			</div>
 		</div>
-		<a href="{% url 'profile' %}"><img src="{% static 'profile-resize.jpg' %}" class="profile" alt="Profile Pic"></a>
 		<nav>
-			<form action="{% url 'search' %}">
-				<input type="search" name="query" placeholder="Search here">
+			<form action="{% url 'search' %}" class="search_form">
+				<input type="search" name="query" placeholder="Search book name or author name" required>
 				<input type="submit" value="Go">
 			</form>
 		</nav>
@@ -29,7 +48,10 @@
 		{% block main %}{% endblock %}
 	</main>
 	<footer>
-		<a href="{% url 'disclaimer' %}">Disclaimer</a>
+		<p><a href="{% url 'contact_us' %}">Contact Us, Feedback
+		is also appreciable.&#128519;</a></p>
+		<p><a href="https://twitter.com/librarygenesis1" target="_blank" rel="noreferrer"><span>Follow us on twitter</span></a></p>
+		<p><a href="{% url 'about_us' %}">About Us</a> | <a href="{% url 'terms_condition' %}">Terms & Condition</a> | <a href="{% url 'our_policy' %}">Our Policy</a></p>
 	</footer>
 </body>
-</html
+</html>

@@ -8,13 +8,11 @@ section a.create-evaluation {
 
 section, article, aside {
 	margin: 30px;
-	/*border: 1px solid green;*/
 }
 
 section>form {
 	display: flex;
 	flex-wrap: wrap;
-	align-content: space-around;
 }
 
 h2 {

@@ -15,9 +15,24 @@ class SearchInline(admin.TabularInline):
 class KeywordInline(admin.TabularInline):
 	model = models.Keyword
 
+class ProfileInline(admin.TabularInline):
+	model = models.Profile
+
+class ToReceiverInline(admin.TabularInline):
+	model = models.ToReceiver
+
+class CCReceiverInline(admin.TabularInline):
+	model = models.CCReceiver
+
+class ReplyToInline(admin.TabularInline):
+	model = models.ReplyTo
+
+
+
 class CustomUserAdmin(UserAdmin):
 	actions = ['add_users_from_json']
-	list_display = ['username', 'email', 'date_joined']
+	list_display = ['id', 'username', 'email', 'date_joined']
+	inlines = [ProfileInline]
 
 	def add_users_from_json(self, request, queryset):
 		with open('cuser_data.json') as file:
@@ -32,19 +47,20 @@ class CustomUserAdmin(UserAdmin):
 				user.save()
 				print(user)
 
-class MsgInline(admin.TabularInline):
-	model = models.Msg
-
 class SearchAdmin(admin.ModelAdmin):
 	list_display = ['search', 'user', 'date']
 	list_filter = ['date']
 	inlines = [BookInline]
+	actions = ['delete_all_searches_of_testing_user']
+
+	def delete_all_searches_of_testing_user(self, request, queryset):
+		models.Search.objects.filter(user_id=3301).delete()
 
 class BookAdmin(admin.ModelAdmin):
 	readonly_fields = ['id']
 	list_display = ['name', 'user', 'search', 'date']
-	list_filter = ['date']
-	actions = ['delete_text_after_number']
+	# list_filter = ['date']
+	actions = ['delete_text_after_number', 'add_slug_from_name']
 
 	def delete_text_after_number(self, request, queryset):
 		books = models.Book.objects.all()
@@ -66,26 +82,68 @@ class BookAdmin(admin.ModelAdmin):
 				new_name = book.name[:index-1]
 				book.name = new_name
 				book.save()
+				
+	non_url_safe = ['"', '#', '$', '%', '&', '+',
+					',', '/', ':', ';', '=', '?',
+					'@', '[', '\\', ']', '^', '`',
+					'{', '|', '}', '~', "'"]
 
-class SubscriberAdmin(admin.ModelAdmin):
-	list_filter = ['created_on']
-	inlines = [MsgInline]
+	def slugify(self, text):
+		"""
+		Turn the text content of a header into a slug for use in an ID
+		"""
+		non_safe = [c for c in text if c in self.non_url_safe]
+		if non_safe:
+			for c in non_safe:
+				text = text.replace(c, '')
+		# Strip leading, trailing and multiple whitespace, convert remaining whitespace to _
+		text = u'-'.join(text.split())
+		return text
+
+	def add_slug_from_name(self, request, queryset):
+		books = models.Book.objects.all()
+		total = books.count()
+		for i, book in enumerate(books):
+			book.slug = self.slugify(book.name)
+			book.save()
+			print(f'{i}/{total}')
+
+
+		
 
 class SponsordedBookAdmin(admin.ModelAdmin):
-	readonly_fields = ['height', 'width', 'thumbnail']
-	list_display = ['title', 'user', 'bid', 'verified']
+	list_display = ['title', 'user', 'bid', 'impressions_count', 'engadgements_count', 'status']
 	inlines = [KeywordInline]
 
 class KeywordAdmin(admin.ModelAdmin):
 	list_display = ['title', 'sponsored_book']
 
+class ProfileAdmin(admin.ModelAdmin):
+	list_display = ['user', 'balance']
+
+class IntrestAdmin(admin.ModelAdmin):
+	list_display = ['keyword', 'user']
+
+class MsgAdmin(admin.ModelAdmin):
+	readonly_fields = ['id']
+	list_display = ['id', 'email', 'text', 'created_on']
+
+class OrderAdmin(admin.ModelAdmin):
+	list_display = ['id', 'amount', 'status', 'tx_time', 'user']
+
+class EmailAdmin(admin.ModelAdmin):
+	list_display = ['subject', 'from_email', 'subject']
+	inlines = [ToReceiverInline, CCReceiverInline, ReplyToInline]
+
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
-admin.site.register(models.Msg)
-admin.site.register(models.Subscriber, SubscriberAdmin)
 admin.site.register(models.Book, BookAdmin)
 admin.site.register(models.Search, SearchAdmin)
-admin.site.register(models.Intrest)
+admin.site.register(models.Intrest, IntrestAdmin)
 admin.site.register(models.Keyword, KeywordAdmin)
 admin.site.register(models.SponsoredBook, SponsordedBookAdmin)
 admin.site.register(models.Evaluation)
+admin.site.register(models.Profile, ProfileAdmin)
+admin.site.register(models.Msg, MsgAdmin)
+admin.site.register(models.Order, OrderAdmin)
+admin.site.register(models.Email, EmailAdmin)

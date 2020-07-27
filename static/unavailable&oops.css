@@ -1,0 +1,8 @@
+.content {
+	display: flex;
+	justify-content: center;
+}
+
+.content>p {
+	color: #e74c3c;
+}

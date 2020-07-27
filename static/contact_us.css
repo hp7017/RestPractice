@@ -1,0 +1,30 @@
+section {
+	max-width: 480px;
+	margin: 0 auto;
+}
+
+section>* {
+	margin: 10px;
+}
+
+section>form>textarea {
+	height: 200px;
+}
+
+section>form>div{
+	display: flex;
+	justify-content: space-between;
+}
+
+section>form>div>p {
+	display: none;
+}
+
+section>form>div>input {
+	width: max-content;
+}
+
+section>form>input[type="submit"] {
+	width: 100px;
+	margin-left: auto;
+}

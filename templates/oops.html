@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Oops!{% endblock %}
+{% block head %}
+	<link rel="stylesheet" type="text/css" href="{% static 'unavailable&oops.css' %}">
+{% endblock %}
+{% block main %}
+	<div class="content">
+		<p>Oops something went wrong! Report has been sent.&#128577;</p>
+	</div>
+{% endblock %}

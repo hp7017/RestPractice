@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Payment {{ txStatus }}{% endblock %}
+{% block head %}
+	<link rel="stylesheet" type="text/css" href="{% static 'payment_return.css' %}">
+{% endblock %}
+{% block main %}
+	<div>
+		<article>
+			<h2>Payment status: {{ txStatus }}</h2>
+			<p>Amount: <strong>{{ orderAmount }}</strong></p>
+			<p>{{txMsg}}</p>
+			<ul>
+				<li>Your balance will reflect as soon as we recieved the amount.</li>
+				<li>For any query contact us at <a href="mailto:support@librarygenesis.in">support@librarygenesis.in</a></li>
+			</ul>
+		</article>
+	</div>
+{% endblock %}

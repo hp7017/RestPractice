@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Contact Us{% endblock %}
+{% block head %}
+	<link rel="stylesheet" type="text/css" href="{% static 'contact_us.css' %}">
+	<script>
+		$(document).ready(function(){	
+			$("#contact_form").submit(function(){
+				console.log($("#msg").val())
+				$("#contact_form_submit").attr("disabled", true)
+				$.post("{% url 'contact_us' %}", {
+					csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+					msg: $("#msg").val(),
+					email: $("#email").val()
+				}, function(data){
+					$("#data").attr("style", "display: block")
+					$("#data").text(data)
+				})
+				return false
+			})
+		})
+	</script>
+	<style type="text/css">
+		.contact_email {
+			line-height: 2
+		}
+	</style>
+{% endblock %}
+{% block main %}
+	<section>
+		<h2>Ask me anything, Feedback is also apreciable&#128519;</h2>
+		<form id="contact_form">
+			{% csrf_token %}
+			{% if user.is_authenticated %}
+				<input type="email" disabled value="{{ user.email }}" id="email">
+			{% else %}
+				<input type="email" placeholder="Enter your email" id="email">
+			{% endif %}
+			<textarea id="msg"></textarea>
+			<div>
+				<p id="data"></p>
+				<input type="submit" id="contact_form_submit">
+			</div>
+		</form>
+		<p class="contact_email">OR <br><span>Contact us on <a href="mailto:support@librarygenesis.in">support@librarygenesis.in</a></span></p>
+	</section>
+{% endblock %}

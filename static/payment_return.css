@@ -1,0 +1,10 @@
+main>div {
+	display: flex;
+	justify-content: center;
+	margin: 10px;
+}
+
+main>div>article>ul>li {
+	font-size: .5rem;
+	color: #7f8c8d;
+}

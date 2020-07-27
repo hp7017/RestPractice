@@ -1,7 +1,10 @@
 main {
 	display: grid;
-	padding: 20px;
 	align-items: start;
+}
+
+section, aside {
+	margin: 10px;
 }
 
 .highlight {
@@ -18,15 +21,6 @@ div.flx {
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
-	margin: 5px;
-}
-
-aside {
-	margin: 20px;
-}
-
-section{
-	margin: 20px;
 }
 
 div.no_found_related_keyword {

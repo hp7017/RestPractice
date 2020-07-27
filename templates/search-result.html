@@ -6,8 +6,23 @@
 		-No result found!
 	{% endif %}
 {% endblock %}
+{% block description %}Download {{ query }} books for free in pdf, epub format.{% endblock %}
 {% block head %}
 	<link rel="stylesheet" type="text/css" href="{% static 'search-result.css' %}">
+	<script>
+		$(document).ready(function(){
+			$(".book_link").click(function(){
+				$(".overlay").show()
+				$.get("{% url 'book_clicked' %}", {
+					id: $(this).attr('href')
+				}, function(data){
+					window.location.href = data;
+					$(".overlay").hide()
+				})
+				return false
+			})
+		})
+	</script>
 {% endblock %}
 {% block main %}
 	<div class="flx">
@@ -18,7 +33,7 @@
 		{% else %}
 			{% for book in books %}
 				<section>
-					<h2><a href="{{ book.link }}">{{ book.title }}</a></h2>
+					<h2><a href="{{ book.md5 }}" class="book_link">{{ book.title }}</a></h2>
 					<div class="table-scroll">
 						<table>
 							<tr>
@@ -48,7 +63,7 @@
 						<h3>{{ word.word }}</h3>
 						<ul>
 							{% for synonym in word.synonyms %}
-								<li><em><a href="">{{ synonym }}</a></em></li>
+								<li><em>{{ synonym }}</em></li>
 							{% endfor %}
 						</ul>
 					{% endif %}

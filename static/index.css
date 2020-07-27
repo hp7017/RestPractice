@@ -1,3 +1,17 @@
+/*header*/
+header {
+	border-bottom: 1px solid #bdc3c7;
+}
+
+header>nav, header>div>form {
+	display: none;
+}
+
+header>div {
+	justify-content: space-between;
+}
+/*end header*/
+
 main {
 	padding: 20px;
 	display: grid;
@@ -22,6 +36,7 @@ section.welcome {
 	text-align: center;
 	grid-area: welcome;
 	align-self: center;
+	grid-template-areas:
 }
 
 aside.recommended-books {
@@ -36,28 +51,11 @@ aside.user-bio {
 	grid-area: user-bio;
 }
 
-aside.user-bio ul {
-	font-size: 0.7rem;
-}
-
-aside img.featured_books {
+aside img.featured_book {
 	width: 90px;
 	height: 150px;
 	margin: 1px;
 	border: 1px solid grey;
-}
-
-header {
-	display: grid;
-	grid-template-columns: max-content max-content;
-	grid-row-gap: 20px;
-	justify-content: space-between;
-	align-items: center;
-	padding: 10px;
-	grid-gap: 20px;
-	box-shadow: 1px 1px 8px grey;
-	grid-template-areas:
-		"logo profile"
 }
 
 @media screen and (min-width: 480px) {
