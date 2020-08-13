@@ -18,15 +18,6 @@ class KeywordInline(admin.TabularInline):
 class ProfileInline(admin.TabularInline):
 	model = models.Profile
 
-class ToReceiverInline(admin.TabularInline):
-	model = models.ToReceiver
-
-class CCReceiverInline(admin.TabularInline):
-	model = models.CCReceiver
-
-class ReplyToInline(admin.TabularInline):
-	model = models.ReplyTo
-
 
 
 class CustomUserAdmin(UserAdmin):
@@ -131,19 +122,13 @@ class MsgAdmin(admin.ModelAdmin):
 class OrderAdmin(admin.ModelAdmin):
 	list_display = ['id', 'amount', 'status', 'tx_time', 'user']
 
-class EmailAdmin(admin.ModelAdmin):
-	list_display = ['subject', 'from_email', 'subject']
-	inlines = [ToReceiverInline, CCReceiverInline, ReplyToInline]
-
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(models.Book, BookAdmin)
 admin.site.register(models.Search, SearchAdmin)
 admin.site.register(models.Intrest, IntrestAdmin)
-admin.site.register(models.Keyword, KeywordAdmin)
 admin.site.register(models.SponsoredBook, SponsordedBookAdmin)
 admin.site.register(models.Evaluation)
 admin.site.register(models.Profile, ProfileAdmin)
 admin.site.register(models.Msg, MsgAdmin)
 admin.site.register(models.Order, OrderAdmin)
-admin.site.register(models.Email, EmailAdmin)

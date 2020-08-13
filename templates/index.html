@@ -6,10 +6,15 @@
 	<script>
 		$(document).ready(function(){
 			$(".featured_book_click").click(function(){
-				$.post("{% url 'sponsored_book_clicked' %}", {
-					csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
-					sid : $(this).attr("id")
-				})	
+				$.ajax({
+					url: "{% url 'sponsored_book_clicked' %}",
+					data: {
+						csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']").val(),
+						sid : $(this).attr("id")
+					},
+					type: 'post',
+					// async: false,
+				})
 			})
 		});
 	</script>

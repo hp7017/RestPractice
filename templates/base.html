@@ -3,8 +3,10 @@
 <html lang="en-us">
 <head>
 	<title>Library Genesis - {% block title %}{% endblock %}</title>
+	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width,height=device-height,initial-scale=1">
 	<meta name="description" content="{% block description %}Search and download your favourite books for free{% endblock %}">
+	<link rel="icon" type="image/png" href="{% static 'icon.png' %}">
 	<link rel="stylesheet" type="text/css" href="{% static 'base.css' %}">
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -25,10 +27,10 @@
 	</div>
 	<header>
 		<div>
-			<div>
+			<a href="{% url 'index' %}">
 				<img src="{% static 'icon.png' %}" alt="Library Genesis App icon">
-				<h1><a href="{% url 'index' %}">Library Genesis App</a></h1>
-			</div>
+				<h1>Library Genesis App</h1>
+			</a>
 			<form action="{% url 'search' %}" class="search_form">
 				<input type="search" name="query" placeholder="Search book name or author name" required>
 				<input type="submit" value="Go">
@@ -47,11 +49,11 @@
 	<main>
 		{% block main %}{% endblock %}
 	</main>
-	<footer>
-		<p><a href="{% url 'contact_us' %}">Contact Us, Feedback
+	<footer class="footer">
+		<p class="footer_lines"><a href="{% url 'contact_us' %}">Contact Us, Feedback
 		is also appreciable.&#128519;</a></p>
-		<p><a href="https://twitter.com/librarygenesis1" target="_blank" rel="noreferrer"><span>Follow us on twitter</span></a></p>
-		<p><a href="{% url 'about_us' %}">About Us</a> | <a href="{% url 'terms_condition' %}">Terms & Condition</a> | <a href="{% url 'our_policy' %}">Our Policy</a></p>
+		<p class="footer_lines"><a href="https://twitter.com/librarygenesis1" target="_blank" rel="noreferrer"><span>Follow us on twitter</span></a></p>
+		<p class="footer_lines"><a href="{% url 'about_us' %}">About Us</a> | <a href="{% url 'terms_condition' %}">Terms & Condition</a> | <a href="{% url 'our_policy' %}">Our Policy</a></p>
 	</footer>
 </body>
 </html>

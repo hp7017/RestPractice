@@ -5,109 +5,170 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'ads-manager.css'%}">
 	<script>
 		$(document).ready(function(){
-			$(".sponsored-book-form").submit(function(){
-				$.post("{% url 'create_wallet' %}", {
-					'csrfmiddlewaretoken': $("input[name='csrfmiddlewaretoken']").val()
-				});
-			});
-			$("input[value='Analyse']").parent().submit(function(){
-				console.log($("input[name='keyword']").val());
+			// initial hidden sections
+			$(".estimated_data, #aside--first__p--error, #section__div--errorsSponsoredBook, #section__div--sucessSponsoredBook").hide()
+			// end here
+			$("#aside--first__form--keywordPlanner").submit(function(){
+				$(".estimated_data, #aside--first__p--error").hide()
+				$("#aside--first__submit").attr("disabled", true)
 				$.get("{% url 'keyword_planner_clicked' %}", {
 					keyword: $("input[name='keyword']").val()
 				}, function(data){
-					console.log(data)
+					$("#aside--first__submit").attr("disabled", false);
 					if (data.error) {
-						$(".error").attr("style", "display: block").text(data.error)
+						$("#aside--first__p--error").text(data.error)
+						$("#aside--first__p--error").show()
 					}
 					else {
 						$(".keyword_title").text($("input[name='keyword']").val())
+						$("#aside--first__form--keywordPlanner").trigger("reset");
 						$(".estimated_traffic").text(data.estimated_traffic+'%')
-						$(".estimated_bid").text('$'+data.estimated_bid)
+						$(".estimated_bid").text('₹ '+data.estimated_bid)
 						$(".estimated_traffic").parent().attr("style", "display: block")
 						$(".estimated_bid").parent().attr("style", "display: block")
 					}
 				})
 				return false
 			});
+
+			$("#section__form--sponsoredBook").submit(function(){
+				event.preventDefault();
+				$("#section__ul--second").text("")
+				$("#section__div--errorsSponsoredBook, #section__div--sucessSponsoredBook").hide()
+				$(".overlay").show()
+				$.ajax({
+					url: "{% url 'ads-manager' %}",
+					data: new FormData($(this)[0]),
+					type: 'post',
+					enctype: 'multipart/form-data',
+					contentType: false,
+					processData: false,
+					success: function(data){
+						$(".overlay").hide()
+						if(data.errors) {
+							for (var name in data.errors) {
+								for (var i in data.errors[name]) {
+									$("#section__ul--second").append("<li>"+name+" : <em>"+data.errors[name][i].message+"</em></li>")
+								}
+							}
+							$("#section__div--errorsSponsoredBook").show()
+							pos = $("#section__div--errorsSponsoredBook").position()
+							scrollTo(pos.left, pos.top-150)
+						}
+						else {
+							$("#section__form--sponsoredBook").trigger("reset")
+							$("#section__div--sucessSponsoredBook").show()
+							pos = $("#section__div--sucessSponsoredBook").position()
+							scrollTo(pos.left, pos.top-150)
+						}
+					}
+				})
+			})
+			$("#redirect_link").click(function(){
+				$(this).val('https://')
+			})
 		});
 	</script>
 {% endblock %}
 {% block main %}
-	{% if failure %}
-		<div class="msg">	
-			<article class="failure">
-				<h2>Book submission Failed</h2>
-				<p>{{ failure }}</p>
-			</article>
+	<p id="main__p">* We advise you to read all <a href="#main__article">articles</a> before submitting your AD.</p>
+	<section id="section">
+		<h2>You are good to go</h2>
+		<ul id="section__form__ul--first">
+			<li><em>Title will <strong>not be visible</strong> for users it's just an identifier.</em></li>
+			<li><em>Thumbnail size should be exactly <strong>180 * 290</strong>. Use <a href="https://resizeimage.net/" rel="nofollow" target="__blank">this</a> or any other tool to resize your thumbnail</em></li>
+			<li><em>Use <a href="#section__form--sponsoredBook__table--profile">Keyword Planner</a> to get the <strong>estimated bid</strong> and <strong>traffic</strong> for your traget keyword</em></li>
+			<li><em>Search Result placeholder is <strong>not available</strong> right now, you can place on royal places only.</em></li>
+		</ul>
+		<div id="section__div--errorsSponsoredBook">		
+			<ul id="section__ul--second">
+				
+			</ul>
 		</div>
-	{% elif success %}
-		<div class="msg">
-			<article class="success">
-				<h2>Book submission succeeded</h2>
-				<p>Book has been submitted successfully! Go to <a href="/profile#sponsored_books">Profile</a> and check the status.</p>
-			</article>
+		<div id="section__div--sucessSponsoredBook">
+			<p id="section__p--sucessfully-submit">Ad has been submitted successfully. See you AD analytics in <a href="/profile#main__section--sponsored_books">Profile</a></p>
 		</div>
-	{% endif %}
-	<div class="flx-1">
-		<details class="our-traffic">
-			<summary>Here is what we got for you</summary>
-			<div class="image-scroll"><img src="{% static 'our-traffic.png' %}" alt="our traffic"></div>
-			<p>This traffic is ready to read your amazing books.</p>
-		</details>
-		<details class="bonus-tip">
-			<summary>Bonus Tip</summary>
-			<img src="{% static 'new-traffic.png' %}" alt="bonus tip new users">
-			<p>We are having collective new users(visitors) so that you do not waste you money just to show ads to same users for no reason.</p>
-		</details>
-		<details class="plug-play">
-			<summary>Plug and Play</summary>
+		<form id="section__form--sponsoredBook" method="post" enctype="multipart/form-data">
+			{% csrf_token %}
+			<div id="section__form__div--first">
+				<input type="text" name="title" placeholder="Enter a Title" class="section__form_div--first__input--all" required>
+				<input type="number" name="bid" min="5" placeholder="Enter Bid in INR" class="section__form_div--first__input--all" required step="0.1">
+				<input type="url" name="redirect_link" placeholder="Enter your book url address" class="section__form_div--first__input--all" required id="redirect_link">
+			</div>
+			<div id="section__form__div--second">
+				<fieldset class="section__form__div--second__fieldset--all">
+					<legend>Upload a great thumbnail</legend>
+					<input type="file" name="thumbnail" accept="image/*">
+				</fieldset>
+				<fieldset class="section__form__div--second__fieldset--all">
+					<legend>Where do you want to place your AD?</legend>
+					<select name="placed_on">
+						<option value="Royal-Place">Royal Place</option>
+						<option value="Search-Result" disabled="">Search Result</option>
+					</select>
+				</fieldset>
+			</div>
+			<fieldset>
+				{{ keyword_formset.management_form }}
+				<legend>Enter Five awesome Keywords</legend>
+				<div id="section__form__fieldset--keyword__div--wrap">
+					{% for keyword_form in keyword_formset %}
+						{{ keyword_form.title }}
+					{% endfor %}
+				</div>
+			</fieldset>
+			<table id="section__form--sponsoredBook__table--profile">
+				{{ profile_form }}
+			</table>
+			<input type="submit" id="section__form--sponsoredBook__input--submit">
+		</form>
+	</section>
+	<aside id="aside--first">
+		<h2>Keyword Planner</h2>
+		<p id="aside--first__p--error"></p>
+		<form id="aside--first__form--keywordPlanner">
+			<p id="error"></p>
+			<input type="text" name="keyword">
+			<input type="submit" value="Analyse" id="aside--first__submit">
+		</form>
+		<p class="estimated_data">Estimated traffic for <strong class="keyword_title">null</strong> is <strong class="estimated_traffic">null</strong>.</p>
+		<p class="estimated_data">Estimated bid to be placed as a <em>first link on Royal Place</em> is <strong class="estimated_bid">null</strong>.</p>
+	</aside>
+	<aside id="aside--second">
+		<h2>Plug and Play</h2>
+		<p>*(<em>Royal places are recommended section on home page.</em>)</p>
 			<p>You are just three steps back</p>
 			<ol>
 				<li>Choose you keywords.</li>
-				<li>Bid on <abbr title="Royal places are recommended section on home page">Royal place</abbr>.</li>
+				<li>Bid on Royal place</abbr>.</li>
 				<li>Submit your book.</li>
 			</ol>
-		</details>
-		<details class="biding-system">
-			<summary>Understand this Bidding system</summary>
+		<h2>Pay only when someone clicks on your book</h2>
+		<p>You will not be charged for impression(<em>How many times people see your ads</em>) but for the engagements(<em>Clicks on your book</em>).</p>
+	</aside>
+	<article id="main__article">
+		<div>
+			<h2>Here is what we got for you</h2>
+			<div id="article__div--first__div">
+				<img src="{% static 'our-traffic.png' %}" alt="our traffic" style="height: 346px; width: auto;">
+			</div>
+			<p>Our audience is ready to read your amazing books &#128515;</p>
+		</div>
+		<div class="article__div--lastthree">
+			<h2>Bonus Tip</h2>
+			<img src="{% static 'new-traffic.png' %}" alt="bonus tip new users traffic" style="max-width: 100%">
+			<p>We are having collective new users(visitors) so that you do not waste you money just to show ads to same users for no reason.</p>
+		</div>
+		<div class="article__div--lastthree">
+			<h2>How do we charge</h2>
+			<p>Our pricing is PPC(<em>pay per click</em>) based, you will be charged for each clicks on your book placed under sponsored section.
+			<p>Traffic which will be divert to your landing page will be differenciated on the basis of keywords connected to your books. This is why Looking for keywords is the most important part. </p>
+			<p>User <a href="#aside--first">keyword planner</a> for find the best keywords fro you book which will give you the estimated cost and bid you keyword.</p>
+		</div>
+		<div class="article__div--lastthree">
+			<h2>Understand this Bidding system</h2>
 			<p>More you bid more priority will be given to you book(compaired to other place holder for same keywords) as simple as that.</p>
-			<p>In order to simplfy this you can consider biding is more or less like a sorting of books on Royal Place. See <a href="#keyword-planner">keyword planner</a> to identify best keywords and estimated cost for your book.</p>
-		</details>
-	</div>
-	<div class="flx-2">
-		<section class="sec">
-			<h2>You are good to go</h2>
-			<form class="sponsored-book-form" method="post" enctype="multipart/form-data">
-				{% csrf_token %}
-				<ul>
-					{{ form.as_ul }}
-				</ul>
-				<fieldset>
-					<legend>Enter Five awesome Keywords</legend>
-					<ul>
-						{{ keyword_form_set.management_form }}
-						{{ keyword_form_set.non_form_errors}}
-						{% for keyword_form in keyword_form_set %}
-							{{ keyword_form.as_ul }}
-						{% endfor %}
-					</ul>
-				</fieldset>
-				<input type="submit">
-			</form>
-		</section>
-		<aside class="billing" id="keyword-planner">
-			<h2>Pay only when someone clicks on your book</h2>
-			<p>You will not be charged for impression(<em>How many times people see your ads</em>) but for the engagements(<em>Clicks on your book</em>).</p>
-		</aside>
-		<aside class="related">
-			<h2>Keyword Planner</h2>
-			<form>
-				<p class="error"></p>
-				<input type="text" name="keyword">
-				<input type="submit" value="Analyse">
-			</form>
-			<p>Estimated traffic for <strong class="keyword_title">null</strong> is <strong class="estimated_traffic">null</strong>.</p>
-			<p>Estimated bid to be placed as a <em>first link on Royal Place</em> is <strong class="estimated_bid">null</strong>.</p>
-		</aside>
-	</div>
+			<p>In order to simplfy this you can consider biding is more or less like a sorting of books on Royal Place. See <a href="#aside--first">keyword planner</a> to identify best keywords and estimated cost for your book.</p>
+		</div>
+	</article>
 {% endblock %}

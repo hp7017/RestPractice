@@ -1,4 +1,13 @@
-section,aside {
+main {
+	padding: 10px;
+}
+
+.table-scroll {
+	width: calc(100vw - 40px);
+	overflow-x: auto;
+}
+
+main>section,main aside {
 	margin: 10px;
 }
 
@@ -22,65 +31,6 @@ main>section>img {
 	margin: 0 auto;
 	max-width: 100%;
 	border-radius: 90px;
-}
-
-.Online {
-	display: flex;
-	align-items: center;
-	color: #2ecc71;
-}
-
-.Offline {
-	display: flex;
-	align-items: center;
-	color: #e74c3c;
-}
-
-.not-verified {
-	color: #f1c40f;
-}
-
-.Online input, .Offline input {
-	padding: 2px 5px
-}
-
-.Online>form *, .Offline>form * {
-	margin: 5px;
-}
-
-main>div {
-	grid-area: sponsored;
-	display: flex;
-	flex-flow: row wrap;
-	padding: 20px;
-}
-
-main>div>section {
-	display: flex;
-	border-radius: 5px;
-	box-shadow: 0 0 5px grey;
-	align-items: center;
-}
-
-main>div>section>img {
-	width: 90px;
-	height: 150px;
-	border-radius: 5px;
-}
-
-main>div>section>div {
-	margin: 0 5px;
-	display: flex;
-	flex-flow: column;
-}
-
-main>div>section>div>table td {
-	padding: 5px;
-}
-
-main>div>section>div>table tr {
-	border-bottom: none;
-	color: #34495e;
 }
 
 aside.linked-books {
@@ -120,6 +70,34 @@ aside p.error-msg{
 	margin: 5px;
 }
 
+#sponsored_book__div {
+	grid-area: sponsored;
+}
+
+#main__section--sponsored_books {
+	display: flex;
+	justify-content: center;
+}
+
+#main__section--sponsored_books {
+	grid-area: sponsored
+}
+
+#main__section--sponsored_books__div--wrpperOfForm {
+	display: flex;
+	flex-flow: row wrap;
+	
+}
+
+.main__section--sponsored_books__div--thumbail-warapper, .sponsored_book__div--wrapper-of-saveReset {
+	display: flex;
+	align-items: center;
+}
+
+.main__section--sponsored_books__form {
+	margin: 10px;
+}
+
 @media screen and (min-width: 480px) {
 	main {
 		display: grid;
@@ -130,5 +108,8 @@ aside p.error-msg{
 			"detail detail linked-books"
 			"detail detail evalutions"
 			"sponsored sponsored sponsored"
+	}
+	.table-scroll {
+		width: initial;
 	}
 }

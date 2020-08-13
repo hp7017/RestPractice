@@ -23,6 +23,7 @@
 				$.get("{% url 'recharge_clicked' %}", {
 					amount: $("input[name='amount']").val()
 				}, function(data){
+					$("#recharge_form_error").text("")
 					if (data.error){
 						$("#recharge_form_error").text(data.error)
 					}
@@ -49,9 +50,9 @@
 {% block main %}
 	<section>
 		<i class="material-icons" style="font-size: 135px">account_circle</i>
-		<h2>Himanshu Pharawal</h2>
+		<h2>{{user.username}}</h2>
 		<div class="table-scroll">
-			<table>
+			<table id="table-scroll__table">
 				<tr>
 					<td>Email</td>
 					<td>{{ user.email }}</td>
@@ -65,39 +66,12 @@
 					<td>{{ user.evaluations.count }}</td>
 				</tr>
 				{% if user.of_profile %}
-					<!-- <script src="https://www.paypal.com/sdk/js?client-id=AWo610ziUShq5feOs0zBVnAXb0BdmpjHfrTIu7Zz-eDok-G0_z3IZ5-7fbJFwkC_KJLdGojx4Xa70YaH&currency=USD"></script> -->
 					<tr>
 						<td>Balance</td>
 						<td class="recharge" id="recharge">
-							<span>{{ user.of_profile.balance }}</span>
-							<!-- <div id="paypal-button-container"></div> -->
-							<!-- <script>
-								paypal.Buttons({
-									createOrder: function(data, actions) {
-										return actions.order.create({
-											purchase_units: [{
-												amount: {
-													value: '0.1',
-												}
-											}]
-										});
-									},
-									onApprove: function(data, actions) {
-										return actions.order.capture().then(function(details) {
-											alert('details.error = ' + details.error)
-											alert('Transaction completed by ' + details.payer.name.given_name);
-										});
-									},
-									onError: function(err) {
-										alert('onError called')
-									},
-									onCancel: function(data) {
-										alert(data)
-									}
-								}).render('#paypal-button-container');
-							</script> -->
+							<span>₹ {{ user.of_profile.balance }}</span>
 							<form id="recharge_form">
-								<input type="number" name="amount" placeholder="in INR" min="5" required="">
+								<input type="number" name="amount" placeholder="Enter amount in INR" min="5" required="">
 								<input type="submit" value="Recharge">
 							</form>
 							<p id="recharge_form_error"></p>
@@ -129,35 +103,68 @@
 		</div>
 	</section>
 	{% if user.sponsored_books.exists %}
-		<div id="sponsored_books">
-			{% for sponsored_book in user.sponsored_books.all %}
-				<section>
-					<img src="/media/{{ sponsored_book.thumbnail }}">
-					<div>
-						<h2>{{ sponsored_book.title }}</h2>
+		<div id="main__section--sponsored_books">
+			<section>
+				<h2>ADS by You</h2>
+				<div id="main__section--sponsored_books__div--wrpperOfForm">
+				{% for sponsored_book in user.sponsored_books.all %}
+					<form method="POST" class="main__section--sponsored_books__form">
+						{% csrf_token %}
+						<input type="hidden" name="sponsored_book_id" value="{{ sponsored_book.id }}">
+						<div class="main__section--sponsored_books__div--thumbail-warapper"><img src="media/{{sponsored_book.thumbnail}}" alt="sponsored book thumbnail" style="width: 100px; height: 100px; border-radius: 50px; margin-right: 10px;"><h3>{{ sponsored_book.title }}</h3></div>
 						<table>
 							<tr>
-								<td><abbr title="How many times people clicked on your book">Engadgement</abbr></td>
+								<td>Engagements</td>
 								<td>{{ sponsored_book.engadgements_count }}</td>
 							</tr>
 							<tr>
-								<td><abbr title="How many times people seen your book" >Impression</abbr></td>
+								<td>Impressions</td>
 								<td>{{ sponsored_book.impressions_count }}</td>
 							</tr>
-							<tr class="status">
+							<tr>
+								<td>Bid</td>
+								<td><input type="number" name="bid" value="{{ sponsored_book.bid }}" min="5" step="0.1"></td>
+							</tr>
+							<tr>
 								<td>Status</td>
-								{% if sponsored_book.status == 'Online' %}
-									<td class="Online">{{ sponsored_book.status }} <form method="post">{% csrf_token %}<input type="hidden" name="sponsored_book_id" value="{{ sponsored_book.id }}"><input type="hidden" name="status" value="Offline"><input type="submit" value="Pause"></form></td>
-								{% elif sponsored_book.status == 'Offline' %}
-									<td class="Offline">{{ sponsored_book.status }} <form method="post">{% csrf_token %}<input type="hidden" name="sponsored_book_id" value="{{ sponsored_book.id }}"><input type="hidden" name="status" value="Online"><input type="submit" value="Resume"></form></td>
-								{% else %}
-									<td class="Offline">{{ sponsored_book.status }} <form method="post">{% csrf_token %}<input type="hidden" name="sponsored_book_id" value="{{ sponsored_book.id }}"></form></td>
-								{% endif %}
+								<td>
+									{% if sponsored_book.status == 'Insufficient-Balance' %}
+									<input style="color: #e74c3c;" name="status" value="Insufficient-Balance" readonly>
+									{% else %}
+									<select name="status">
+										{% for status in sponsored_book.statuses|slice:":2" %}
+										<option value="{{ status.0 }}" {% if sponsored_book.status == status.0 %}selected{% endif %}>{{status.1}}</option>
+										{% endfor %}
+									</select>
+									{% endif %}
+								</td>
+							</tr>
+							<tr>
+								<td>Placed On</td>
+								<td>{{ sponsored_book.placed_on }}</td>
+							</tr>
+							<tr>
+								<td>Redirect Link</td>
+								<td>{{ sponsored_book.redirect_link }}</td>
+							</tr>
+							<tr>
+								<td>Keywords</td>
+								<td>
+									{% for keyword in sponsored_book.keywords.all %}
+										<span><em>{{ keyword }}</em> |</span>
+									{% endfor %}
+								</td>
 							</tr>
 						</table>
-					</div>
-				</section>
-			{% endfor %}
+						<div class="sponsored_book__div--wrapper-of-saveReset">
+							<input type="submit" value="Save" name="update">
+							<input type="reset">
+							<input type="submit" value="Delete" name="delete">
+						</div>
+					</form>
+				{% endfor %}
+				</div>
+			</section>
 		</div>
 	{% endif %}
 	<aside class="linked-books">
@@ -188,4 +195,5 @@
 		{% endif %}
 		<p><a href="{% url 'evaluations' %}">Create</a> Evaluation and help other readers.</p>
 	</aside>
+	{{ sponsored_book_formset }}
 {% endblock %}

@@ -1,171 +1,102 @@
-article, section, aside {
-	margin: 30px;
+main {
+	padding: 20px;
 }
 
-details {
-	margin: 20px;
-}
-
-h2 {
-	margin-bottom: 10px;
-}
-
-div.msg {
-	display: flex;
-	justify-content: center;
-}
-
-article {
-	padding: 10px;
-	border-radius: 10px;
-}
-
-input[type='file'] {
-	height: 49px;
-}
-
-article.failure {
-	border: 1px solid #e74c3c;
-	color: #e74c3c;
-}
-
-article.success {
-	border: 1px solid #2ecc71;
-	color: #2ecc71;
-}
-
-div.image-scroll {
-	overflow-x: auto;
-	max-width: calc(100vw - 40px);
-}
-
-details>img {
-	display: block;
-	max-width: 100%;
-}
-
-div.warning {
-	border:  1px solid #e74c3c;
-	color:  #e74c3c;
-	display:  flex;
-	align-items: flex-start;
-	align-items: center;
-}
-
-section>form>ul {
-	padding: 0;
-	display: flex;
-	flex-flow: row wrap;
-}
-
-section>form>ul>* {
-	list-style-type: none;
-	margin: 2px;
-	flex: 1 auto;
-}
-
-section>form>ul>li>ul, section>form>fieldset>ul>li>ul, section>form>fieldset>ul>ul {
-	padding: 5px;
-    color: red;
-    padding-top: 10px;
-    list-style-type: none;
-    border: 1px solid #e74c3c;
-    margin-top: 10px;
-    border-radius: 3px;
-}
-
-section>form>fieldset>ul>li>ul, section>form>fieldset>ul>ul {
-	margin: 5px;
-}
-
-section>form>fieldset {
-	margin: 20px 0;
-}
-
-section>form>fieldset>legend {
-	font-size:  .8rem;
-}
-
-section>form>fieldset>ul {
-	padding: 0;
-	display: flex;
-	flex-flow: row wrap;
-	list-style-type: none;
-	padding: 5px
-}
-
-section>form>fieldset>ul>li {
-	margin: 5px;
-}
-
-section>form>fieldset>ul>li>label {
-	display: none;
-}
-
-aside>form>p.error {
-	border: 1px solid #e74c3c;
-	color: #e74c3c;
-	padding: 5px;
+#main__p {
+	grid-area: main__p;
+	color: white;
+	background-color: #f39c12;
+	padding: 10px 20px;
+	margin-right: auto;
 	border-radius: 5px;
-	display: none;
 }
 
-aside:last-of-type>p {
-	display: none;
+#section {
+	grid-area: section;
+}
+
+#aside--first {
+	grid-area: aside--first;
+	margin: 80px 0;
+}
+
+#aside--second {
+	grid-area: aside--second;
+}
+
+#main__article {
+	grid-area: main__article;
+	display: flex;
+	flex-flow: row wrap;
+}
+
+.article__div--lastthree {
+	flex: 1 200px;
+	margin: 5px;
+}
+
+#aside--first__p--error {
+	background-color: #e74c3c;
+	color: white;
+	padding: 10px;
+	border-radius: 5px;
+}
+
+#article__div--first__div {
+	overflow: auto;
+	width: calc(100vw - 40px);
+}
+
+#section__form__div--first, #section__form__fieldset--keyword__div--wrap, #section__form__div--second {
+	display: flex;
+	flex-flow: row wrap;
+}
+
+.section__form_div--first__input--all, .section__form__fieldset--keyword__div--wrap__input, .section__form__div--second__fieldset--all {
+	flex: 1 200px;
+	margin: 5px;
+}
+
+#section__form__ul--first, #section__ul--second {
+	padding: 10px;
+	padding-left: 30px;
+	border: 1px solid #f1c40f;
+	border-radius: 5px;
+}
+
+#section__ul--second {
+	margin-top: 10px;
+	background-color: #e74c3c;
+	color: white;
+}
+
+#section__p--sucessfully-submit {
+	background-color: #2ecc71;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
 }
 
 @media screen and (min-width: 480px) {
-	details.our-traffic {
-		grid-area: our-traffic;
-	}
-
-	details.bonus-tip {
-		grid-area: bonus-tip;
-	}
-
-	details.plug-play {
-		grid-area: plug-play;
-	}
-
-	details.biding-system {
-		grid-area: biding-system;
-	}
-
-	div.flx-1 {
+	main {
 		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		grid-area: fl;
-		grid-template-areas:
-				"our-traffic our-traffic our-traffic"
-				"bonus-tip plug-play biding-system";
-	}
-
-	.sec {
-		grid-area: sec;
-	}
-
-	.billing {
-		grid-area: billing;
-	}
-
-	.related {
-		grid-area: related;
-	}
-
-	.flx-2 {
-		display: grid;
-		grid-template-columns: 2fr 1fr;
 		align-items: start;
+		grid-gap: 10px;
+		grid-template-columns: 2fr 1fr;
 		grid-template-areas: 
-			"sec related"
-			"billing billing";
+			"main__p main__p"
+			"section aside--first"
+			"aside--second aside--second"
+			"main__article main__article"
 	}
 }
 
 @media screen and (min-width: 1025px) {
-	.flx-2 {
+	main {
 		grid-template-columns: 2fr 1fr 1fr;
 		grid-template-areas: 
-			"sec billing related";
+			"main__p main__p main__p"
+			"section aside--first aside--second"
+			"main__article main__article main__article"
 	}
 }

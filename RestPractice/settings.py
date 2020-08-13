@@ -78,10 +78,7 @@ WSGI_APPLICATION = 'RestPractice.wsgi.application'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    'default': env.DATABASE
 }
 
 
@@ -135,8 +132,8 @@ LOGIN_REDIRECT_URL = '/profile'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = 'mail.privateemail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'himanshupharawal100@gmail.com'
+EMAIL_HOST_USER = 'support@librarygenesis.in'
 EMAIL_HOST_PASSWORD = env.REPAIR
-DEFAULT_FROM_EMAIL = 'Reset <himanshupharawal100@gmail.com>'
+DEFAULT_FROM_EMAIL = 'Reset Password <reset-password@librarygenesis.in>'

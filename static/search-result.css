@@ -3,6 +3,18 @@ main {
 	align-items: start;
 }
 
+section>h2 {
+	font-size: 1.1rem;
+}
+
+section td {
+	padding: 10px;
+}
+
+section {
+	padding: 10px;
+}
+
 section, aside {
 	margin: 10px;
 }

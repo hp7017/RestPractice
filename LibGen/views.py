@@ -1,8 +1,7 @@
 from . import models
 from django.views import View
-from django.views.generic.detail import DetailView
 from django.http import HttpResponse, JsonResponse, Http404
-from django.shortcuts import render, get_list_or_404, get_object_or_404, reverse, redirect
+from django.shortcuts import render, get_object_or_404, reverse, redirect
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 import requests
@@ -16,7 +15,8 @@ from django.views.decorators.csrf import csrf_exempt
 import hashlib
 import hmac
 import base64
-from django.core.mail import send_mail, mail_admins, EmailMessage
+
+from django.forms import inlineformset_factory, modelformset_factory, modelform_factory
 
 class Book():
 	author = None
@@ -44,7 +44,7 @@ class Index(View):
 			sponsored_books = models.SponsoredBook.objects.only('id', 'thumbnail', 'redirect_link').filter(keywords__title__in=sub, status='Online').annotate(points=Count('id')).order_by('-points', '-bid')[:6]
 			models.SponsoredBook.objects.filter(id__in=sponsored_books).update(impressions_count=F('impressions_count')+1)
 		else:
-			sponsored_books = models.SponsoredBook.objects.only('thumbnail', 'redirect_link')[:6]
+			sponsored_books = models.SponsoredBook.objects.only('id', 'thumbnail', 'redirect_link').filter(status='Online').annotate(points=Count('id')).order_by('-points', '-bid')[:6]
 			models.SponsoredBook.objects.filter(id__in=sponsored_books).update(impressions_count=F('impressions_count')+1)
 		context = {
 			'user': request.user,
@@ -56,17 +56,37 @@ class Index(View):
 class Profile(LoginRequiredMixin, View):
 
 	def get(self, request):
-		user = User.objects.filter(id=request.user.id).prefetch_related('evaluations', 'books', 'of_profile', 'sponsored_books')
+		user = User.objects.filter(id=request.user.id).prefetch_related('evaluations', 'books', 'of_profile', 'sponsored_books', 'sponsored_books__keywords')
+		user = user[0]
 		context = {
-			'user' : user[0],
+			'user' : user,
 		}
 		return render(request, 'profile.html', context=context)
 
 	def post(self, request):
-		status = request.POST.get('status')
-		if status:
-			request.user.sponsored_books.filter(id=request.POST.get('sponsored_book_id')).update(status=status)
-		return HttpResponseRedirect(reverse('profile'))
+		if request.POST.get('delete'):
+			self.delete_sponsored_book(id_=request.POST.get('sponsored_book_id'))
+
+		if request.POST.get('update'):
+			SponsoredBookForm = modelform_factory(models.SponsoredBook, fields=['bid', 'status'])
+			sponsored_book_form = SponsoredBookForm(data={'id':id_, 'bid':bid, 'status': status}, instance=models.SponsoredBook.objects.get(id=id_))
+			if sponsored_book_form.is_valid():
+				sponsored_book = sponsored_book_form.save(commit=False)
+				if request.user.of_profile.wallet >= sponsored_book.bid:
+					sponsored_book.status = 'Online'
+				sponsored_book.save()
+			else:
+				errors = sponsored_book_form.errors.get_json_data()
+				email = models.Email.objects.create(
+					subject='[Profile>update_sponsored_book]Undesired error occured',
+					body=f'{errors}',
+					from_email='Django Server <server@librarygenesis.in>',
+					to_email='himanshu.pharawal@librarygenesis.in')
+		return redirect(reverse('profile'))
+
+	def delete_sponsored_book(self, id_):
+		sponsored_book = models.SponsoredBook.objects.get(id=id_).delete()
+		return HttpResponse('done')
 
 class Disclaimer(View):
 
@@ -184,45 +204,54 @@ class Evaluation(LoginRequiredMixin, View):
 		title = request.POST.get('title')
 		link = request.POST.get('link')
 		models.Evaluation.objects.create(book=book, title=title, link=link)
-		return HttpResponseRedirect(reverse('evaluations'))
+		return redirect(reverse('evaluations'))
 
 class AdsManager(LoginRequiredMixin, View):
 
 	def get(self, request):
-		form = forms.SponsoredBookForm()
-		keyword_form_set = forms.keyword_form_set()
+		if models.Profile.objects.filter(user_id=request.user.id).exists():
+			profile = models.Profile.objects.get(user_id=request.user.id)
+			profile_form = forms.ProfileForm(instance=profile)
+		else:
+			profile_form = forms.ProfileForm()
+		keyword_formset = inlineformset_factory(models.SponsoredBook, models.Keyword, form=forms.KeywordForm, can_delete=False, extra=5, max_num=5, min_num=1, validate_max=True, validate_min=True, formset=forms.KeywordFormset)
 		context = {
-			'form': form,
-			'keyword_form_set': keyword_form_set,
+			'profile_form': profile_form,
+			'keyword_formset': keyword_formset
 		}
 		return render(request, 'ads-manager.html', context=context)
 
 	def post(self, request):
-		form = forms.SponsoredBookForm(request.POST,request.FILES)
-		keyword_form_set = forms.keyword_form_set(request.POST)
-		if form.is_valid():
-			print(f'form.is_valid')
-			sponsored_book = form.save(commit=False)
-			sponsored_book.user = User.objects.get(id=request.user.id)
-			keyword_form_set_copy = forms.keyword_form_set(request.POST, instance=sponsored_book)
-			if keyword_form_set.is_valid():
-				print(f'keyword_form_set.is_valid()')
-				sponsored_book.save()
-				keyword_form_set_copy.save()
-				form = forms.SponsoredBookForm()
-				keyword_form_set = forms.keyword_form_set()
-				context = {
-							'success': True,
-							'form': form,
-							'keyword_form_set': keyword_form_set
-						}
-				return render(request, 'unavailable.html', context=context)
-		context = {
-			'failure': 'Resolve below errors before trying again!',
-			'form': form,
-			'keyword_form_set': keyword_form_set
-		}
-		return render(request, 'ads-manager.html', context=context)
+		sponsored_book_form = forms.SponsoredBookForm(request.POST, request.FILES)
+		keywords_formset = inlineformset_factory(models.SponsoredBook, models.Keyword, form=forms.KeywordForm, can_delete=False, max_num=5, min_num=1, validate_max=True, validate_min=True, formset=forms.KeywordFormset)
+		if models.Profile.objects.filter(user_id=request.user.id).exists():
+			profile = models.Profile.objects.get(user_id=request.user.id)
+			profile_form = forms.ProfileForm(request.POST, instance=profile)
+		else:
+			profile_form = forms.ProfileForm(request.POST)
+		if sponsored_book_form.is_valid():
+			sponsored_book = sponsored_book_form.save(commit=False)
+			keywords_formset = keywords_formset(request.POST, instance=sponsored_book)
+			if keywords_formset.is_valid():
+				sponsored_book.user_id = request.user.id
+				if profile_form.is_valid():
+					profile = profile_form.save(commit=False)
+					profile.user_id = request.user.id
+					profile.save()
+					sponsored_book.save()
+					keywords_formset.save()
+					return JsonResponse({'is_submit': True})
+					
+				else:
+					errors = profile_form.errors.get_json_data()
+			else:
+				errors = keywords_formset.get_json_data()
+				for form in keywords_formset:
+					errors.update(form.errors.get_json_data())		
+		else:
+			errors = sponsored_book_form.errors.get_json_data()
+
+		return JsonResponse({'errors':errors})
 
 class SponsoredBookClicked(View):
 
@@ -231,11 +260,12 @@ class SponsoredBookClicked(View):
 		sponsored_books = models.SponsoredBook.objects.filter(id=sid).select_related('user', 'user__of_profile')
 		sponsored_book = sponsored_books[0]
 		if sponsored_book.user.of_profile.balance < sponsored_book.bid:
-			# models.Notification(
-			# 	user=sponsored_book.user,
-			# 	heading='Balance insufficient to be placed on sponsored section',
-			# 	text='Please recharge your account. Your book is no more visible on sponsored section due to insufficient balance.',
-			# 	link='profile#recharge')
+			email = models.Email.objects.create(
+				subject='Balance insufficient',
+				body=f'You have got a click on you book. But due to insufficient balance in your wallet your book titled as {sponsored_book.title} is no more visible on sponsored section.\n\nPlease recharge your wallet to continue promoting your book. Visit {request.scheme}://{request.get_host()}/profile and recharge your wallet.\n\nThanks and Regards,\nLibrary Genesis App',
+				from_email='My Wallet <wallets@librarygenesis.in>',
+				reply_to='support@librarygenesis.in',
+				to_email=sponsored_book.user.email)
 			sponsored_book.status = 'Insufficient-Balance'
 			sponsored_book.save()
 		else:
@@ -245,24 +275,18 @@ class SponsoredBookClicked(View):
 			sponsored_book.save()
 		return HttpResponse('ok.')
 
-class CreateWallet(LoginRequiredMixin, View):
-
-	def post(self, request):
-		if not models.Profile.objects.filter(user=request.user).exists():
-			models.Profile.objects.create(balance=0, user=request.user)
-		return HttpResponse('ok')
-
 class KeywordPlannerClicked(LoginRequiredMixin, View):
 
 	def get(self, request):
 		keyword = request.GET.get('keyword')
 		if keyword:
 			if not len(keyword.split(' ')) > 1:
-				estimated_traffic = (User.objects.filter(intrests__keyword=keyword).count()//User.objects.count())*100
+				keyword = keyword.lower()
+				estimated_traffic = int((User.objects.filter(intrests__keyword=keyword).count()/User.objects.count())*100)
 				estimated_bid = models.SponsoredBook.objects.filter(keywords__title=keyword).aggregate(Max('bid'))
 				if not estimated_bid['bid__max']:
-					estimated_bid['bid__max'] = 0.1
-				return JsonResponse({'estimated_traffic': estimated_traffic, 'estimated_bid': estimated_bid['bid__max']})
+					estimated_bid['bid__max'] = 5
+				return JsonResponse({'estimated_traffic': estimated_traffic, 'estimated_bid': estimated_bid['bid__max']+2})
 			else:
 				return JsonResponse({'error': 'You can not use spaces. It is suppose to analyse a single keyword'})
 		else:
@@ -326,26 +350,41 @@ def payment_done(request):
 	paymentMode = request.POST.get('paymentMode')
 	txMsg = request.POST.get('txMsg')
 	txTime = request.POST.get('txTime')
-	if orderId:
-		order = models.Order.objects.filter(id=orderId).select_related('user', 'user__of_profile')
-		order = order[0]
-		order.amount = orderAmount
-		order.reference_id = referenceId
-		order.status = txStatus
-		order.payment_mode = paymentMode
-		order.tx_msg = txMsg
-		order.tx_time = txTime
-		try:
-			order.full_clean()
-			order.save()
-			order.user.of_profile.balance += float(orderAmount)
-			order.user.of_profile.full_clean()
-			order.user.of_profile.save()
-		except ValidationError as e:
-			models.Msg.create(email='self@librarygenesis.in', text=f'validation error occured\nvalidation = {e}\nrequest.uses.id = {request.user.id}')
+	order = models.Order.objects.filter(id=orderId).select_related('user', 'user__of_profile').prefetch_related('user__sponsored_books')
+	order = order[0]
+	print(order.user.__dict__)
+	order.amount = orderAmount
+	order.reference_id = referenceId
+	order.status = txStatus
+	order.payment_mode = paymentMode
+	order.tx_msg = txMsg
+	order.tx_time = txTime
+	OrderForm = modelform_factory(models.Order, exclude=['user'])
+	order_form = OrderForm(data={
+		'amount': orderAmount,
+		'reference_id': referenceId,
+		'status': txStatus,
+		'payment_mode': paymentMode,
+		'tx_msg': txMsg,
+		'tx_time': txTime
+		}, instance=order)
+	if order_form.is_valid():
+		order_form.save()
+		order.user.of_profile.balance += float(orderAmount)
+		order.user.of_profile.save()
+		order.user.sponsored_books.filter(bid__lt=order.user.of_profile.balance).update(status='Online')
+		models.Email.objects.create(
+			subject='Payment successful.',
+			body=f'You have made a successfull payment of INR {order.amount} to your wallet.\nYou can see the transaction related information below:\namount: {order.amount},\nreference_id: {order.reference_id},\nstatus: {order.status},\npayment_mode: {order.payment_mode},\ntransaction time: {order.tx_time},\n\nIf you found something wrong please let us know at support@librarygenesis.in\n\nThanks and Regards,\nLibrary Genesis App',
+			from_email='My Wallet <wallets@librarygenesis.in>',
+			to_email=order.user.email)
 	else:
-		models.Msg.create(email='self@librarygenesis.in', text=f'orderId recieved None\nrequest.uses.id = {request.user.id}')
-	return HttpResponse('')
+		email = models.Email.objects.create(
+			from_email='Django Server <server@librarygenesis.in>',
+			body=f'validation error occured\nvalidation = {order_form.errors.get_json_data()}\nrequest.uses.id = {request.user.id}',
+			subject='[Emergency Payment]validation error occured',
+			to_email='himanshu.pharawal@librarygenesis.in')
+	return HttpResponse('ok.')
 
 @csrf_exempt
 def payment_return(request):
@@ -364,11 +403,23 @@ def payment_return(request):
 		order.payment_mode = paymentMode
 		order.tx_msg = txMsg
 		order.tx_time = txTime
-		try:
-			order.full_clean()
-			order.save()
-		except ValidationError as e:
-			models.Msg.create(email='self@librarygenesis.in', text=f'method = payment_return\nvalidation_error = {e}')
+		OrderForm = modelform_factory(models.Order, exclude=['user'])
+		order_form = OrderForm(data={
+			'amount': orderAmount,
+			'reference_id': referenceId,
+			'status': txStatus,
+			'payment_mode': paymentMode,
+			'tx_msg': txMsg,
+			'tx_time': txTime
+			}, instance=order)
+		if order_form.is_valid():
+			order_form.save()
+		else:
+			email = models.Email.objects.create(
+				from_email='Django Server <server@librarygenesis.in>',
+				body=f'validation error occured\nvalidation = {order_form.errors.get_json_data()}\nrequest.uses.id = {request.user.id}',
+				subject='[Emergency]validation error occured',
+				to_email='himanshu.pharawal@librarygenesis.in')
 	context = {
 		'orderId': orderId,
 		'orderAmount': orderAmount,
@@ -385,7 +436,6 @@ class ContactUs(View):
 	def post(self, request):
 		text = request.POST.get('msg')
 		email = request.POST.get('email')
-		print(text, email)
 		if text and email:
 			msg = models.Msg.objects.create(email=email, text=text)
 			return HttpResponse(f'Thanks for contacting us. If it was a question we will get back to you soon. Token number is {msg.id}')
@@ -408,17 +458,45 @@ class BookClicked(LoginRequiredMixin, View):
 				bsobj = BeautifulSoup(response.text)
 				final_link = bsobj.find('table').findAll('tr')[0].findAll('td')[1].a['href']
 			except Exception as e:
-				models.Msg.objects.create(email='self@librarygenesis.in', text=f'method = BookClicked\nuser = {request.user.id}\ncomplete error : \n{e}')
-				return HttpResponse(reverse('oops'))
+				email = models.Email.objects.create(
+					subject='Book download link was not received',
+					body=f'class = BookClicked\nmethod = get\ncomplete error = {e}',
+					from_email='Django Server <server@librarygenesis.in>',
+					to_email='himanshu.pharawal@librarygenesis.in')
 			return HttpResponse(final_link)
 		else:
-			models.NMsg.objects.create(email='self@librarygenesis.in', text=f'{request.user.id} was not able to recieve the redirect link.')
+			email = models.Email.objects.create(
+				subject='md5 was received as null',
+				body=f'class = BookClicked\nmethod = get',
+				from_email='Django Server <server@librarygenesis.in>',
+					to_email='himanshu.pharawal@librarygenesis.in')
 			return HttpResponse(reverse('oops'))
 
 class Oops(View):
 
 	def get(self, request):
 		return render(request, 'oops.html')
+
+class Registration(View):
+
+	def get(self, request):
+		registration_form = forms.RegistrationForm()
+		return render(request, 'registration/registration.html', context={'registration_form': registration_form})
+
+	def post(self, request):
+		from django.contrib.auth import login
+		registration_form = forms.RegistrationForm(request.POST)
+		if registration_form.is_valid():
+			user = registration_form.save()
+			login(request, user)
+			email = models.Email.objects.create(
+				subject='Sucessfully created account',
+				body=f'Welcome to Library Genesis App. You have successfully created your account.\n\nNow you can enjoy downloading books absoluetly free.\nIf you are a writer or blogger who wants to promote his/her book or article then you are very welcome to ads-manager service by us. Please visit {request.scheme}://{request.get_host()}/ads-manager for more info.\n\nIf you have not created this account please reply this email or let us know the issue at support@librarygenesis.in\n\nThanks and Regards,\nLibrary Genesis App',
+				reply_to='support@librarygenesis.in',
+				from_email='Accounts <accounts@librarygenesis.in>',
+				to_email=request.user.email)
+			return redirect(reverse('profile'))
+		return render(request, 'registration/registration.html', context={'registration_form': registration_form})
 
 def our_policy(request):
 	return render(request, 'our_policy.html')

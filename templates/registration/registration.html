@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Registration{% endblock %}
+{% block head %}
+	<link rel="stylesheet" type="text/css" href="{% static 'registration.css' %}">
+{% endblock %}
+{% block main %}
+<div class="flx">
+	<section>
+		<form method="post" id="registration_form">
+			{% csrf_token %}
+			<table>
+				{{ registration_form }}
+				<tr>	
+				<td></td>
+				<td>	
+				<input type="submit" value="Sign Up">
+				</td>
+				</tr>
+			</table>
+		</form>
+	</section>
+</div>
+{% endblock %}

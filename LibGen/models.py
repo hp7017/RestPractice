@@ -14,7 +14,7 @@ class Profile(models.Model):
 
 	def validate_image(fieldfile_obj):
 		if get_image_dimensions(fieldfile_obj) != (180, 180):
-			raise ValidationError("Thumnail should be exact 180*180")
+			raise ValidationError("Profile size should be exact 180*180")
 
 	user = models.OneToOneField(User, related_name='of_profile', on_delete=models.CASCADE)
 	pic = models.ImageField(upload_to=user_directory_path, validators=[validate_image], blank=True)
@@ -28,7 +28,7 @@ class Intrest(models.Model):
 
 	def clean(self):
 		self.keyword = self.keyword.lower()
-		super().clean(self)
+		super().clean()
 
 	def __str__(self):
 		return self.keyword
@@ -70,19 +70,19 @@ class SponsoredBook(models.Model):
 	statuses = (
 			('Online', 'Online'),
 			('Offline', 'Offline'),
-			('Insufficient Balance', 'Insufficient-Balance')
+			('Insufficient-Balance', 'Insufficient Balance')
 		)
 
 	def validate_image(fieldfile_obj):
 		if get_image_dimensions(fieldfile_obj) != (180, 290):
-			raise ValidationError("Thumnail should be exact 180*290")
+			raise ValidationError("Thumbnail should be exact 180*290")
 	user = models.ForeignKey(User, related_name='sponsored_books', on_delete=models.CASCADE)
 
 	def user_directory_path(self, filename):
 		return 'user_{0}/{1}'.format(self.user.id, filename)
 	
 	title = models.CharField(max_length=20)
-	bid = models.FloatField(validators=[MinValueValidator(0.1)])
+	bid = models.FloatField(validators=[MinValueValidator(5)])
 	placed_on = models.CharField(choices=places, max_length=20)
 	status = models.CharField(max_length=100, choices=statuses, default='Online')
 	thumbnail = models.ImageField(upload_to=user_directory_path, validators=[validate_image])
@@ -103,7 +103,10 @@ class Keyword(models.Model):
 	title = models.CharField(max_length=50)
 
 	def clean(self):
+		super().clean()
 		self.title = self.title.lower()
+		if len(self.title.split(' ')) != 1:
+			raise ValidationError({'title': 'Keyword Suppose to a single word. Please do not use spaces.'})
 
 	def __str__(self):
 		return self.title
@@ -125,8 +128,11 @@ class Msg(models.Model):
 	text = models.TextField()
 	created_on = models.DateTimeField(auto_now_add=True)
 
+	def __str__(self):
+		return self.email
+
 class Order(models.Model):
-	user = models.ForeignKey(User, related_name='orders', on_delete=models.CASCADE)
+	user = models.ForeignKey(User, related_name='orders', on_delete=models.SET_NULL, null=True)
 	amount = models.FloatField()
 	reference_id = models.CharField(max_length=500, blank=True)
 	status = models.CharField(max_length=500, default='Opened')
@@ -141,21 +147,14 @@ class Order(models.Model):
 		ordering = ['-tx_time']
 
 class Email(models.Model):
+	reply_tos = (
+		('support@librarygenesis.in', 'Support'),)
+
 	subject = models.CharField(max_length=1000)
 	body = models.TextField()
 	from_email = models.EmailField()
+	reply_to = models.EmailField(choices=reply_tos, null=True)
+	to_email = models.EmailField()
 
 	def __str__(self):
 		return f'{self.subject}'
-
-class ToReceiver(models.Model):
-	email = models.ForeignKey(Email, related_name='to_receivers', on_delete=models.CASCADE)
-	receiver_email = models.EmailField()
-
-class CCReceiver(models.Model):
-	email = models.ForeignKey(Email, related_name='cc_receivers', on_delete=models.CASCADE)
-	receiver_email = models.EmailField()
-
-class ReplyTo(models.Model):
-	email = models.ForeignKey(Email, related_name='reply_to', on_delete=models.CASCADE)
-	receiver_email = models.EmailField()

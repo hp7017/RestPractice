@@ -25,9 +25,8 @@ urlpatterns = [
 	path('evaluations', views.Evaluation.as_view(), name='evaluations'),
 	path('books/<str:slug>/<int:pk>', views.BookDetail.as_view(), name='books'),
 	path('ads-manager', views.AdsManager.as_view(), name='ads-manager'),
-	path('sponsored-book-clicked', views.SponsoredBookClicked.as_view(), name='sponsored_book_clicked'),
+	path('sponsored-book-clicked/', views.SponsoredBookClicked.as_view(), name='sponsored_book_clicked'),
 	path('recharge-clicked', views.RechargeClicked.as_view(), name='recharge_clicked'),
-	path('create-wallet', views.CreateWallet.as_view(), name='create_wallet'),
 	path('keyword-planner_clicked/', views.KeywordPlannerClicked.as_view(), name='keyword_planner_clicked'),
 	path('sitemap.xml', sitemap, {'sitemaps': {'static': StaticSitemap(), 'books': GenericSitemap(info_dict)}}, name='django.contrib.sitemap.views.sitemap'),
 	path('payment-done', views.payment_done, name='payment_done'),
@@ -38,4 +37,5 @@ urlpatterns = [
 	path('our-policy', views.our_policy, name='our_policy'),
 	path('terms-condition', views.terms_condition, name='terms_condition'),
 	path('about-us', views.about_us, name='about_us'),
+	path('registration', views.Registration.as_view(), name='registration')
 ]

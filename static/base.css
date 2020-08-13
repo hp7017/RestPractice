@@ -14,6 +14,10 @@ body {
 	grid-template-rows: max-content auto max-content;
 }
 
+h2 {
+	margin: 10px 0;
+}
+
 h3 {
 	color: #95a5a6;
 }
@@ -24,6 +28,10 @@ p {
 	margin: 10px 0;
 }
 
+em {
+	font-size: .6rem;
+}
+
 a {
 	text-decoration: none;
 	color: #3498db;
@@ -31,7 +39,11 @@ a {
 
 table {
 	border-collapse: collapse;
-	font-size: .8rem
+	font-size: .7rem
+}
+
+form {
+	margin: 10px 0;
 }
 
 tr {
@@ -39,7 +51,7 @@ tr {
 }
 
 td {
-	padding: 20px;
+	padding: 10px;
 }
 
 ul, ol {
@@ -55,14 +67,23 @@ input[type="file"] {
 	border: 1px solid grey;
 }
 
+input[readonly] {
+	background-color: #ecf0f1;
+	border: 1px solid #bdc3c7;
+	color: grey;
+}
+
 fieldset {
 	border: 1px solid grey;
+	margin: 5px 0;
+	padding: 10px;
 }
 
 input, textarea, select, label{
 	display: block;
 	padding: 10px 15px;
 	width: 100%;
+	flex-grow: 1;
 }
 
 i {
@@ -70,7 +91,8 @@ i {
 }
 
 legend {
-	margin-left: 50px;
+	margin-left: 30px;
+	font-size: .6rem;
 }
 
 /*header*/
@@ -80,21 +102,21 @@ header>div {
 	align-items: center;
 }
 
-header>div>div:first-of-type {
+header>div>a {
 	display: flex;
 	align-items: center;
 }
 
-header>div>div:first-of-type>* {
+header>div>a>* {
 	margin: 5px;
 }
 
-header>div>div:first-of-type>img {
+header>div>a>img {
 	width: 50px;
 	height: 50px;
 }
 
-header>div>div:first-of-type>h1 {
+header>div>a>h1 {
 	font-size: 1rem;
 }
 
@@ -125,7 +147,9 @@ nav>form>input:last-of-type {
 summary {
 	font-size: 20px;
 	padding: 10px;
-	border: 1px solid #ecf0f1;
+	/*border: 1px solid #bdc3c7;*/
+	box-shadow: 0 0 3px grey;
+	border-radius: 5px;
 }
 
 footer {
@@ -144,6 +168,10 @@ footer>p>a:last-of-type>span {
 	padding: 5px 10px;
 	border-radius: 20px;
 	line-height: 3;
+}
+
+.footer_lines {
+	margin: 0;
 }
 
 .overlay {

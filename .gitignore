@@ -2,3 +2,6 @@
 RestPractice/env.py
 *.bak
 __pycache__
+emails.json
+execute_always.py
+media/

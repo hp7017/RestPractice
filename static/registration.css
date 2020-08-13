@@ -15,6 +15,22 @@ input[type="submit"] {
 	padding: 5px 20px;
 }
 
+ul {
+	padding: 0;
+}
+
+li {
+	color: #e74c3c;
+}
+
+.helptext {
+	display: none;
+}
+
+#registration_form td {
+	max-width: 250px;
+}
+
 .submit {
 	border: 0;
 }
