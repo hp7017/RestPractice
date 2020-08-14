@@ -5,3 +5,4 @@ __pycache__
 emails.json
 execute_always.py
 media/
+staticfiles/

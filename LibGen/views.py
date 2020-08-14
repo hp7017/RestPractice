@@ -15,7 +15,7 @@ from django.views.decorators.csrf import csrf_exempt
 import hashlib
 import hmac
 import base64
-
+from django.core.mail import EmailMessage
 from django.forms import inlineformset_factory, modelformset_factory, modelform_factory
 
 class Book():
@@ -41,11 +41,11 @@ class Index(View):
 	def get(self, request):
 		if request.user.is_authenticated:
 			sub = request.user.intrests.values('keyword')
-			sponsored_books = models.SponsoredBook.objects.only('id', 'thumbnail', 'redirect_link').filter(keywords__title__in=list(sub), status='Online').annotate(points=Count('id')).order_by('-points', '-bid')[:6]
-			models.SponsoredBook.objects.filter(id__in=list(sponsored_books)).update(impressions_count=F('impressions_count')+1)
+			sponsored_books = models.SponsoredBook.objects.only('id', 'thumbnail', 'redirect_link').filter(keywords__title__in=sub, status='Online').annotate(points=Count('id')).order_by('-points', '-bid')[:6]
+			models.SponsoredBook.objects.filter(id__in=sponsored_books).update(impressions_count=F('impressions_count')+1)
 		else:
 			sponsored_books = models.SponsoredBook.objects.only('id', 'thumbnail', 'redirect_link').filter(status='Online').annotate(points=Count('id')).order_by('-points', '-bid')[:6]
-			models.SponsoredBook.objects.filter(id__in=list(sponsored_books)).update(impressions_count=F('impressions_count')+1)
+			models.SponsoredBook.objects.filter(id__in=sponsored_books).update(impressions_count=F('impressions_count')+1)
 		context = {
 			'user': request.user,
 			'sponsored_books': sponsored_books,
@@ -77,11 +77,12 @@ class Profile(LoginRequiredMixin, View):
 				sponsored_book.save()
 			else:
 				errors = sponsored_book_form.errors.get_json_data()
-				email = models.Email.objects.create(
+				email = EmailMessage(
 					subject='[Profile>update_sponsored_book]Undesired error occured',
 					body=f'{errors}',
 					from_email='Django Server <server@librarygenesis.in>',
-					to_email='himanshu.pharawal@librarygenesis.in')
+					to=['himanshu.pharawal@librarygenesis.in'])
+				email.send()
 		return redirect(reverse('profile'))
 
 	def delete_sponsored_book(self, id_):
@@ -260,12 +261,13 @@ class SponsoredBookClicked(View):
 		sponsored_books = models.SponsoredBook.objects.filter(id=sid).select_related('user', 'user__of_profile')
 		sponsored_book = sponsored_books[0]
 		if sponsored_book.user.of_profile.balance < sponsored_book.bid:
-			email = models.Email.objects.create(
+			email = EmailMessage(
 				subject='Balance insufficient',
 				body=f'You have got a click on you book. But due to insufficient balance in your wallet your book titled as {sponsored_book.title} is no more visible on sponsored section.\n\nPlease recharge your wallet to continue promoting your book. Visit {request.scheme}://{request.get_host()}/profile and recharge your wallet.\n\nThanks and Regards,\nLibrary Genesis App',
 				from_email='My Wallet <wallets@librarygenesis.in>',
-				reply_to='support@librarygenesis.in',
-				to_email=sponsored_book.user.email)
+				reply_to=['support@librarygenesis.in'],
+				to=[sponsored_book.user.email])
+			email.send()
 			sponsored_book.status = 'Insufficient-Balance'
 			sponsored_book.save()
 		else:
@@ -373,17 +375,19 @@ def payment_done(request):
 		order.user.of_profile.balance += float(orderAmount)
 		order.user.of_profile.save()
 		order.user.sponsored_books.filter(bid__lt=order.user.of_profile.balance).update(status='Online')
-		models.Email.objects.create(
+		email = EmailMessage(
 			subject='Payment successful.',
 			body=f'You have made a successfull payment of INR {order.amount} to your wallet.\nYou can see the transaction related information below:\namount: {order.amount},\nreference_id: {order.reference_id},\nstatus: {order.status},\npayment_mode: {order.payment_mode},\ntransaction time: {order.tx_time},\n\nIf you found something wrong please let us know at support@librarygenesis.in\n\nThanks and Regards,\nLibrary Genesis App',
 			from_email='My Wallet <wallets@librarygenesis.in>',
-			to_email=order.user.email)
+			to=[order.user.email])
+		email.send()
 	else:
-		email = models.Email.objects.create(
+		email = EmailMessage(
 			from_email='Django Server <server@librarygenesis.in>',
 			body=f'validation error occured\nvalidation = {order_form.errors.get_json_data()}\nrequest.uses.id = {request.user.id}',
 			subject='[Emergency Payment]validation error occured',
-			to_email='himanshu.pharawal@librarygenesis.in')
+			to=['himanshu.pharawal@librarygenesis.in'])
+		email.send()
 	return HttpResponse('ok.')
 
 @csrf_exempt
@@ -415,11 +419,12 @@ def payment_return(request):
 		if order_form.is_valid():
 			order_form.save()
 		else:
-			email = models.Email.objects.create(
+			email = EmailMessage(
 				from_email='Django Server <server@librarygenesis.in>',
 				body=f'validation error occured\nvalidation = {order_form.errors.get_json_data()}\nrequest.uses.id = {request.user.id}',
 				subject='[Emergency]validation error occured',
-				to_email='himanshu.pharawal@librarygenesis.in')
+				to=['himanshu.pharawal@librarygenesis.in'])
+			email.send()
 	context = {
 		'orderId': orderId,
 		'orderAmount': orderAmount,
@@ -458,18 +463,20 @@ class BookClicked(LoginRequiredMixin, View):
 				bsobj = BeautifulSoup(response.text)
 				final_link = bsobj.find('table').findAll('tr')[0].findAll('td')[1].a['href']
 			except Exception as e:
-				email = models.Email.objects.create(
+				email = EmailMessage(
 					subject='Book download link was not received',
 					body=f'class = BookClicked\nmethod = get\ncomplete error = {e}',
 					from_email='Django Server <server@librarygenesis.in>',
-					to_email='himanshu.pharawal@librarygenesis.in')
+					to=['himanshu.pharawal@librarygenesis.in'])
+				email.send()
 			return HttpResponse(final_link)
 		else:
-			email = models.Email.objects.create(
+			email = EmailMessage(
 				subject='md5 was received as null',
 				body=f'class = BookClicked\nmethod = get',
 				from_email='Django Server <server@librarygenesis.in>',
-					to_email='himanshu.pharawal@librarygenesis.in')
+				to=['himanshu.pharawal@librarygenesis.in'])
+			email.send()
 			return HttpResponse(reverse('oops'))
 
 class Oops(View):
@@ -489,12 +496,13 @@ class Registration(View):
 		if registration_form.is_valid():
 			user = registration_form.save()
 			login(request, user)
-			email = models.Email.objects.create(
+			email = EmailMessage(
 				subject='Sucessfully created account',
 				body=f'Welcome to Library Genesis App. You have successfully created your account.\n\nNow you can enjoy downloading books absoluetly free.\nIf you are a writer or blogger who wants to promote his/her book or article then you are very welcome to ads-manager service by us. Please visit {request.scheme}://{request.get_host()}/ads-manager for more info.\n\nIf you have not created this account please reply this email or let us know the issue at support@librarygenesis.in\n\nThanks and Regards,\nLibrary Genesis App',
-				reply_to='support@librarygenesis.in',
+				reply_to=['support@librarygenesis.in'],
 				from_email='Accounts <accounts@librarygenesis.in>',
-				to_email=request.user.email)
+				to=[request.user.email])
+			email.send()
 			return redirect(reverse('profile'))
 		return render(request, 'registration/registration.html', context={'registration_form': registration_form})
 
