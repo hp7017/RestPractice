@@ -22,10 +22,13 @@
 import requests
 from bs4 import BeautifulSoup
 import json
+import os
+base_dir = os.path.dirname(os.path.abspath(__file__))
+print(base_dir)
 r = requests.get('https://free-proxy-list.net/')
 bsobj = BeautifulSoup(r.text)
 proxies = ['{0}:{1}'.format(tr.findAll('td')[0].get_text(), tr.findAll('td')[1].get_text()) for tr in bsobj.find('tbody').findAll('tr') if tr.findAll('td')[6].get_text() == 'no']
-file = open('proxies.json', 'w')
+file = open(os.path.join(base_dir, 'proxies.json'), 'w')
 file.write(json.dumps(proxies))
 # from collections import OrderedDict
 

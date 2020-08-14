@@ -19,6 +19,7 @@ from django.core.mail import EmailMessage
 from django.forms import inlineformset_factory, modelformset_factory, modelform_factory
 import json
 from random import choice
+import os
 
 class Book():
 	author = None
@@ -41,6 +42,7 @@ class CustomSponsoredBook():
 class Index(View):
 
 	def get(self, request):
+		print(os.path.abspath(__file__))
 		if request.user.is_authenticated:
 			sponsored_books = models.SponsoredBook.objects.only('id', 'thumbnail', 'redirect_link').filter(keywords__title__in=[intrest.keyword for intrest in request.user.intrests.only('keyword')], status='Online').annotate(points=Count('id')).order_by('-points', '-bid')[:5]
 			models.SponsoredBook.objects.filter(id__in=[sponsored_book.id for sponsored_book in sponsored_books]).update(impressions_count=F('impressions_count')+1)
@@ -131,10 +133,11 @@ class Search(View):
 		no_result_found = False
 		link = 'http://gen.lib.rus.ec/search.php?req={0}'.format(search)
 		books = []
+		base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 		try:
-			with open('proxies.json') as f:
+			with open(os.path.join(base_dir, 'proxies.json')) as f:
 				proxies = json.loads(f.read())
-			with open('headers.json') as f:
+			with open(os.path.join(base_dir, 'headers.json')) as f:
 				headers = choice(json.loads(f.read()))
 			proxy = choice(proxies)
 			r = requests.get(link, proxies={'http': proxy}, headers=headers)

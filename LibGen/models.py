@@ -4,6 +4,7 @@ from django.shortcuts import reverse
 from django.core.exceptions import ValidationError
 from django.core.files.images import get_image_dimensions
 from django.core.validators import MinValueValidator
+import os
 
 # Create your models here.
 
@@ -96,6 +97,15 @@ class SponsoredBook(models.Model):
 
 	class Meta:
 		ordering = ['-bid']
+
+	def delete(self, *args, **kwargs):
+		super().delete(*args, **kwargs)
+		base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+		path = os.path.join(base_dir, 'media', str(self.thumbnail))
+		if os.path.exists(path):
+			os.remove(path)
+		else:
+			print('already not exists')
 
 class Keyword(models.Model):
 
