@@ -40,12 +40,11 @@ class Index(View):
 
 	def get(self, request):
 		if request.user.is_authenticated:
-			sub = request.user.intrests.values('keyword')
-			sponsored_books = models.SponsoredBook.objects.only('id', 'thumbnail', 'redirect_link').filter(keywords__title__in=sub, status='Online').annotate(points=Count('id')).order_by('-points', '-bid')[:6]
-			models.SponsoredBook.objects.filter(id__in=sponsored_books).update(impressions_count=F('impressions_count')+1)
+			sponsored_books = models.SponsoredBook.objects.only('id', 'thumbnail', 'redirect_link').filter(keywords__title__in=[intrest.keyword for intrest in request.user.intrests.only('keyword')], status='Online').annotate(points=Count('id')).order_by('-points', '-bid')[:5]
+			models.SponsoredBook.objects.filter(id__in=[sponsored_book.id for sponsored_book in sponsored_books]).update(impressions_count=F('impressions_count')+1)
 		else:
-			sponsored_books = models.SponsoredBook.objects.only('id', 'thumbnail', 'redirect_link').filter(status='Online').annotate(points=Count('id')).order_by('-points', '-bid')[:6]
-			models.SponsoredBook.objects.filter(id__in=sponsored_books).update(impressions_count=F('impressions_count')+1)
+			sponsored_books = models.SponsoredBook.objects.only('id', 'thumbnail', 'redirect_link').filter(status='Online').annotate(points=Count('id')).order_by('-points', '-bid')[:5]
+			models.SponsoredBook.objects.filter(id__in=[sponsored_book.id for sponsored_book in sponsored_books]).update(impressions_count=F('impressions_count')+1)
 		context = {
 			'user': request.user,
 			'sponsored_books': sponsored_books,
