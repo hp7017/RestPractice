@@ -17,6 +17,8 @@ import hmac
 import base64
 from django.core.mail import EmailMessage
 from django.forms import inlineformset_factory, modelformset_factory, modelform_factory
+import json
+from random import choice
 
 class Book():
 	author = None
@@ -130,7 +132,12 @@ class Search(View):
 		link = 'http://gen.lib.rus.ec/search.php?req={0}'.format(search)
 		books = []
 		try:
-			r = requests.get(link)
+			with open('proxies.json') as f:
+				proxies = json.loads(f.read())
+			with open('headers.json') as f:
+				headers = choice(json.loads(f.read()))
+			proxy = choice(proxies)
+			r = requests.get(link, proxies={'http': proxy}, headers=headers)
 			bsobj = BeautifulSoup(r.text)
 			for tr in bsobj.findAll('table')[2].findAll('tr')[1:]:
 				tds = tr.findAll('td')
