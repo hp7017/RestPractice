@@ -140,7 +140,7 @@ class Search(View):
 			with open(os.path.join(base_dir, 'headers.json')) as f:
 				headers = choice(json.loads(f.read()))
 			print(proxy)
-			r = requests.get(link, proxies={'http': proxy}, headers=headers)
+			r = requests.get(link, proxies={'http': proxy}, headers=headers, timeout=10)
 			bsobj = BeautifulSoup(r.text)
 			for tr in bsobj.findAll('table')[2].findAll('tr')[1:]:
 				tds = tr.findAll('td')
@@ -168,9 +168,13 @@ class Search(View):
 				books.append(book)
 		except Exception as e:
 			print(type(e), e)
-			if isinstance(e, requests.exceptions.ProxyError):
-				print('proxy error')
-				delete_proxy = True
+			delete_proxy = True
+			with open(os.path.join(base_dir, 'proxies.json'), 'r') as f:
+				proxies = json.loads(f.read())
+				proxies.remove(proxy)
+			with open(os.path.join(base_dir, 'proxies.json'), 'w') as f:
+				f.write(json.dumps(proxies))
+				f.close()
 			try_again = True
 		if len(books) == 0:
 			no_result_found = True
@@ -196,7 +200,7 @@ class Search(View):
 		if request.user.is_authenticated:
 			search_model = models.Search(search=search, user=request.user)
 			search_model.save()
-			context = self.parsed(search=search, user=request.user, proxy=request.session['proxy'])
+			context = self.parsed(search=search, user=request.user, proxy='163.44.153.98:8080')
 		else:
 			context = self.parsed(search=search, proxy=request.session['proxy'])
 		if context['delete_proxy']:
@@ -480,8 +484,6 @@ class BookClicked(LoginRequiredMixin, View):
 		if md5:
 			link = prefix + md5
 			try:
-				with open(os.path.join(base_dir, 'proxies.json')) as f:
-					proxies = json.loads(f.read())
 				with open(os.path.join(base_dir, 'headers.json')) as f:
 					headers = choice(json.loads(f.read()))
 				print(request.session['proxy'])
