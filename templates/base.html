@@ -10,7 +10,14 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'base.css' %}">
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-175581013-1"></script>
 	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+
+		gtag('config', 'UA-175581013-1');
+
 		$(document).ready(function(){
 			$(".overlay").hide()
 			$(".search_form").submit(function() {
