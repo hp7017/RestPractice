@@ -44,6 +44,10 @@ i.error {
 	color: #7f8c8d;
 }
 
+#connection_error_reason {
+	margin: 0 20px;
+}
+
 @media screen and (min-width: 1025px) {
 	main {
 		grid-template-columns: 2fr 1fr;

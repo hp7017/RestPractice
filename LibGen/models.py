@@ -168,3 +168,11 @@ class Email(models.Model):
 
 	def __str__(self):
 		return f'{self.subject}'
+
+class Proxy(models.Model):
+	worked = models.BooleanField(default=False)
+	ip = models.CharField(max_length=100)
+	port = models.CharField(max_length=10)
+
+	def __str__(self):
+		return f'{self.ip}:{self.port} worked:{self.worked}'

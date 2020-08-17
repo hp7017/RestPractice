@@ -28,6 +28,7 @@
 	<div class="flx">
 		{% if try_again %}
 			<p class="msg-error">Opps connection slips please try again!</p>
+			<p id="connection_error_reason">It usually happens when you have cleared browser cookies or you are searching for the first time. Don't worry, once you get the result settings will be saved.(<em>Unless you clear your browser cookies</em>)</p>
 		{% elif no_result_found %}
 			<p class="msg-error">No result found for <span class="highlight"><em>{{query}}</em></span> check spellings or try other keywords!</p>
 		{% else %}

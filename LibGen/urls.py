@@ -12,7 +12,7 @@ info_dict = {
 class StaticSitemap(Sitemap):
 
 	def items(self):
-		return ['index', 'profile', 'disclaimer', 'contact_us']
+		return ['index', 'profile', 'disclaimer', 'contact_us', 'about_us', 'registration', 'terms_condition', 'our_policy', 'ads-manager']
 
 	def location(self, item):
 		return reverse(item)

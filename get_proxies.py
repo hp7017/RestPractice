@@ -1,7 +1,7 @@
-# import os
-# import django
-# os.environ['DJANGO_SETTINGS_MODULE'] = 'RestPractice.settings'
-# django.setup()
+import os
+import django
+os.environ['DJANGO_SETTINGS_MODULE'] = 'RestPractice.settings'
+django.setup()
 
 # from django.core.mail import EmailMessage
 # from LibGen import models
@@ -22,14 +22,13 @@
 import requests
 from bs4 import BeautifulSoup
 import json
-import os
+from LibGen import models
 base_dir = os.path.dirname(os.path.abspath(__file__))
 print(base_dir)
 r = requests.get('https://free-proxy-list.net/')
 bsobj = BeautifulSoup(r.text)
-proxies = ['{0}:{1}'.format(tr.findAll('td')[0].get_text(), tr.findAll('td')[1].get_text()) for tr in bsobj.find('tbody').findAll('tr') if tr.findAll('td')[6].get_text() == 'no']
-file = open(os.path.join(base_dir, 'proxies.json'), 'w')
-file.write(json.dumps(proxies))
+proxies = [models.Proxy(ip=tr.findAll('td')[0].get_text(), port=tr.findAll('td')[1].get_text()) for tr in bsobj.find('tbody').findAll('tr') if tr.findAll('td')[6].get_text() == 'no']
+models.Proxy.objects.bulk_create(proxies)
 # from collections import OrderedDict
 
 # This data was created by using the curl method explained above

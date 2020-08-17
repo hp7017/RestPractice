@@ -98,6 +98,10 @@ aside p.error-msg{
 	margin: 10px;
 }
 
+#recharge__em--non-indian-users {
+	color: red;
+}
+
 @media screen and (min-width: 480px) {
 	main {
 		display: grid;

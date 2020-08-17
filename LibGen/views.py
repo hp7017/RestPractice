@@ -20,6 +20,7 @@ from django.forms import inlineformset_factory, modelformset_factory, modelform_
 import json
 from random import choice
 import os
+from RestPractice import env
 
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -136,11 +137,15 @@ class Search(View):
 		no_result_found = False
 		link = 'http://gen.lib.rus.ec/search.php?req={0}'.format(search)
 		books = []
+		set_proxy_worked = False
+		delete_proxy = False
+		set_connection_slip_count_to_zero = False
+		increamet_connection_slip_count = False
 		try:
 			with open(os.path.join(base_dir, 'headers.json')) as f:
 				headers = choice(json.loads(f.read()))
 			print(proxy)
-			r = requests.get(link, proxies={'http': proxy}, headers=headers, timeout=10)
+			r = requests.get(link, proxies={'http': proxy}, headers=headers, timeout=8)
 			bsobj = BeautifulSoup(r.text)
 			for tr in bsobj.findAll('table')[2].findAll('tr')[1:]:
 				tds = tr.findAll('td')
@@ -166,18 +171,16 @@ class Search(View):
 				book.extension = extension
 				book.md5 = new_link[new_link.index('=')+1:]
 				books.append(book)
+				set_connection_slip_count_to_zero = True
+				set_proxy_worked = True
 		except Exception as e:
 			print(type(e), e)
 			delete_proxy = True
-			with open(os.path.join(base_dir, 'proxies.json'), 'r') as f:
-				proxies = json.loads(f.read())
-				proxies.remove(proxy)
-			with open(os.path.join(base_dir, 'proxies.json'), 'w') as f:
-				f.write(json.dumps(proxies))
-				f.close()
+			increamet_connection_slip_count = True
 			try_again = True
 		if len(books) == 0:
 			no_result_found = True
+		print('pre contenxt')
 		context = {
 			'books': books,
 			'query': search,
@@ -186,27 +189,89 @@ class Search(View):
 			'words': words,
 			'having_related_words': having_related_words,
 			'having_definitions': having_definitions,
+			'set_connection_slip_count_to_zero': set_connection_slip_count_to_zero,
+			'increamet_connection_slip_count': increamet_connection_slip_count,
+			'set_proxy_worked': set_proxy_worked,
 			'delete_proxy': delete_proxy
 		}
 		return context
 
 	def get(self, request):
 		search = request.GET.get('query')
-		if 'proxy' not in request.session.keys():
-			print('proxy not in request.session')
-			with open(os.path.join(base_dir, 'proxies.json')) as f:
-				proxies = json.loads(f.read())
-			request.session['proxy'] = choice(proxies)
+		if 'connection_slip_count' in request.session.keys() and 'proxy_ip' in request.session.keys():
+			print('connection_slip_count andd proxy exists')
+			if request.session['connection_slip_count'] == 0:
+				print('connection_slip_count is 0')
+				print('assign previous proxy(if exists) or random')
+				if models.Proxy.objects.filter(ip=request.session['proxy_ip']).exists():
+					proxy = models.Proxy.objects.filter(ip=request.session['proxy_ip'])
+					proxy = proxy[0]
+				else:
+					proxy =  choice(models.Proxy.objects.all())
+					request.session['proxy_ip'] = proxy.ip
+					request.session['proxy_port'] = proxy.port
+			elif request.session['connection_slip_count'] == 1:
+				print('connection_slip_count is 1')
+				proxy =  choice(models.Proxy.objects.all())
+				request.session['proxy_ip'] = proxy.ip
+				request.session['proxy_port'] = proxy.port
+			elif request.session['connection_slip_count'] == 2:
+				print('connection_slip_count is 2')
+				count = request.session['connection_slip_count']
+				proxy = self.worked_proxy()
+				request.session['proxy_ip'] = proxy.ip
+				request.session['proxy_port'] = proxy.port
+			else:
+				print('connection_slip_count is [more than 2]')
+				count = request.session['connection_slip_count']
+				email = EmailMessage(
+					subject='[Django Server] Slips count exceed more than 1.',
+					body=f'class Search\nmethod = Get\nnote = {count}\nuser = {request.user}',
+					from_email='Django Server <server@librarygenesis.in>',
+					to=['himanshu.pharawal@librarygenesis.in'])
+				# email.send()
+				print('email sent')
+				proxy = self.worked_proxy()
+				request.session['proxy_ip'] = proxy.ip
+				request.session['proxy_port'] = proxy.port
+		else:
+			print('connection_slip_count does not exists')
+			request.session['connection_slip_count'] = 0
+			proxy =  choice(models.Proxy.objects.all())
+			request.session['proxy_ip'] = proxy.ip
+			request.session['proxy_port'] = proxy.port
 		if request.user.is_authenticated:
 			search_model = models.Search(search=search, user=request.user)
 			search_model.save()
-			context = self.parsed(search=search, user=request.user, proxy='163.44.153.98:8080')
+			# request.session['proxy_ip'] = '18.130.89.239'
+			# request.session['proxy_port'] = '80'
+			context = self.parsed(search=search, user=request.user, proxy='{0}:{1}'.format(request.session['proxy_ip'], request.session['proxy_port']))
 		else:
-			context = self.parsed(search=search, proxy=request.session['proxy'])
+			# request.session['proxy_ip'] = '18.130.89.239'
+			# request.session['proxy_port'] = '80'
+			context = self.parsed(search=search, proxy='{0}:{1}'.format(request.session['proxy_ip'], request.session['proxy_port']))
+		if context['set_connection_slip_count_to_zero']:
+			print('connection_slip_count set to 0')
+			request.session['connection_slip_count'] = 0
+		if context['increamet_connection_slip_count']:
+			print('connection_slip_count incremented by 1')
+			request.session['connection_slip_count'] += 1
+		if context['set_proxy_worked']:
+			if proxy.worked == False:
+				print('proxy worked set to True')
+				proxy.worked = True
+				proxy.save()
 		if context['delete_proxy']:
-			print('delete_proxy')
-			del request.session['proxy']
+			print('proxy deleted')
+			proxy.delete()
 		return render(request, 'search-result.html', context=context)
+
+	def worked_proxy(self):
+		if models.Proxy.objects.filter(worked=True).exists():
+			proxy = choice(models.Proxy.objects.filter(worked=True))
+		else:
+			proxy =  choice(models.Proxy.objects.all())
+		return proxy
 
 class BookDetail(Search):
 	
@@ -323,6 +388,12 @@ class RechargeClicked(View, LoginRequiredMixin):
 
 	def get(self, request):
 		amount = request.GET.get('amount')
+		test_payment = 'https://test.cashfree.com/billpay/checkout/post/submit'
+		live_payment = 'https://www.cashfree.com/checkout/post/submit'
+		test_secret = 'c9de14e9a061a679737a9a3b7edf2f03519ccc82'.encode('utf-8')
+		live_secret = '17648dc584464448f563409cfa90190c47dc1c2f'.encode('utf-8')
+		test_appId = '21675bd6ae0fb1336e5c8d2d957612'
+		live_appId = '65736326d732cf2c91eb3bbe963756'
 		if float(amount) >= 5:
 			user = User.objects.filter(id=request.user.id).prefetch_related('of_profile')
 			user = user[0]
@@ -330,11 +401,10 @@ class RechargeClicked(View, LoginRequiredMixin):
 			#cashfree
 			host = request.get_host()
 			postData = {
-				"appId" : '21675bd6ae0fb1336e5c8d2d957612',
+				"appId" : test_appId if env.TEST_PAYMENT else live_appId,
 				"orderId": str(order.id),
 				"orderAmount" : str(amount),
 				"orderCurrency" : 'INR',
-				"orderNote" : '*Non-indian users can pay only with Paypal',
 				"customerName" : str(user.username),
 				"customerPhone" : str(user.of_profile.phone),
 				"customerEmail" : str(user.email),
@@ -346,7 +416,7 @@ class RechargeClicked(View, LoginRequiredMixin):
 			for key in sortedKeys:
 				signatureData += key+postData[key]
 			message = signatureData.encode('utf-8')
-			secret = 'c9de14e9a061a679737a9a3b7edf2f03519ccc82'.encode('utf-8')
+			secret = test_secret if env.TEST_PAYMENT else live_secret
 			signature = base64.b64encode(hmac.new(secret, message, digestmod=hashlib.sha256).digest()).decode('utf-8')
 			#end cashfree
 			return JsonResponse({
@@ -355,12 +425,12 @@ class RechargeClicked(View, LoginRequiredMixin):
 				"orderId": postData['orderId'],
 				"orderAmount" : postData['orderAmount'],
 				"orderCurrency" : postData['orderCurrency'],
-				"orderNote" : postData['orderNote'],
 				"customerName" : postData['customerName'],
 				"customerPhone" : postData['customerPhone'],
 				"customerEmail" : postData['customerEmail'],
 				"returnUrl" : postData['returnUrl'],
-				"notifyUrl" : postData['notifyUrl']
+				"notifyUrl" : postData['notifyUrl'],
+				"url": test_payment if env.TEST_PAYMENT else live_payment
 				})
 		else:
 			return JsonResponse({
@@ -486,8 +556,8 @@ class BookClicked(LoginRequiredMixin, View):
 			try:
 				with open(os.path.join(base_dir, 'headers.json')) as f:
 					headers = choice(json.loads(f.read()))
-				print(request.session['proxy'])
-				response = requests.get(link, proxies={'http': request.session['proxy']}, headers=headers)
+				print('{0}:{1}'.format(request.session['proxy_ip'], request.session['port']))
+				response = requests.get(link, proxies={'http': '{0}:{1}'.format(request.session['proxy_ip'], request.session['port'])}, headers=headers)
 				bsobj = BeautifulSoup(response.text)
 				final_link = bsobj.find('table').findAll('tr')[0].findAll('td')[1].a['href']
 			except Exception as e:
