@@ -1,14 +1,12 @@
 from . import models
 from django.views import View
-from django.http import HttpResponse, JsonResponse, Http404
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, reverse, redirect
-from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 import requests
 from bs4 import BeautifulSoup
 from textblob import Word
-from django.db.models import Count, Sum, F, Max
-from django.db.models.functions import Lower
+from django.db.models import Count, F, Max
 from django.contrib.auth.mixins import LoginRequiredMixin
 from . import forms
 from django.views.decorators.csrf import csrf_exempt
@@ -16,7 +14,7 @@ import hashlib
 import hmac
 import base64
 from django.core.mail import EmailMessage
-from django.forms import inlineformset_factory, modelformset_factory, modelform_factory
+from django.forms import inlineformset_factory, modelform_factory
 import json
 from random import choice
 import os
@@ -71,14 +69,17 @@ class Profile(LoginRequiredMixin, View):
 
 	def post(self, request):
 		if request.POST.get('delete'):
-			self.delete_sponsored_book(id_=request.POST.get('sponsored_book_id'))
+			models.SponsoredBook.objects.get(id=request.POST.get('sponsored_book_id')).delete()
 
 		if request.POST.get('update'):
-			SponsoredBookForm = modelform_factory(models.SponsoredBook, fields=['bid', 'status'])
-			sponsored_book_form = SponsoredBookForm(data={'id':id_, 'bid':bid, 'status': status}, instance=models.SponsoredBook.objects.get(id=id_))
+			sponsored_book_form = forms.SponsoredBookForm(
+				data = {
+					'status': request.POST.get('status'),
+					'bid': request.POST.get('bid')},
+				instance = models.SponsoredBook.objects.get(id=request.POST.get('sponsored_book_id')))
 			if sponsored_book_form.is_valid():
 				sponsored_book = sponsored_book_form.save(commit=False)
-				if request.user.of_profile.wallet >= sponsored_book.bid:
+				if request.user.of_profile.balance >= sponsored_book.bid:
 					sponsored_book.status = 'Online'
 				sponsored_book.save()
 			else:
@@ -90,10 +91,6 @@ class Profile(LoginRequiredMixin, View):
 					to=['himanshu.pharawal@librarygenesis.in'])
 				email.send()
 		return redirect(reverse('profile'))
-
-	def delete_sponsored_book(self, id_):
-		sponsored_book = models.SponsoredBook.objects.get(id=id_).delete()
-		return HttpResponse('done')
 
 class Disclaimer(View):
 
@@ -161,7 +158,6 @@ class Search(View):
 				extension = tds[8].get_text()
 				link = tds[10].a['href']
 				new_link = link
-				ind = new_link.index
 				if new_link[new_link.index(':')-1] != 's':
 					new_link = new_link[:new_link.index(':')] + 's' + new_link[new_link.index(':'):]
 				book = Book()
@@ -556,8 +552,8 @@ class BookClicked(LoginRequiredMixin, View):
 			try:
 				with open(os.path.join(base_dir, 'headers.json')) as f:
 					headers = choice(json.loads(f.read()))
-				print('{0}:{1}'.format(request.session['proxy_ip'], request.session['port']))
-				response = requests.get(link, proxies={'http': '{0}:{1}'.format(request.session['proxy_ip'], request.session['port'])}, headers=headers)
+				print('{0}:{1}'.format(request.session['proxy_ip'], request.session['proxy_port']))
+				response = requests.get(link, proxies={'http': '{0}:{1}'.format(request.session['proxy_ip'], request.session['proxy_port'])}, headers=headers)
 				bsobj = BeautifulSoup(response.text)
 				final_link = bsobj.find('table').findAll('tr')[0].findAll('td')[1].a['href']
 			except Exception as e:

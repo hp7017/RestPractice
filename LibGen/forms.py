@@ -10,7 +10,7 @@ class SponsoredBookForm(ModelForm):
 		
 	class Meta:
 		model = models.SponsoredBook
-		exclude = ['user', 'engadgements_count', 'impressions_count', 'status']
+		fields = ['status', 'bid']
 
 	def clean_placed_on(self):
 		placed_on = self.cleaned_data['placed_on']
