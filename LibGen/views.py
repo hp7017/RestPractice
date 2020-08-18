@@ -19,6 +19,7 @@ import json
 from random import choice
 import os
 from RestPractice import env
+from django.utils.text import slugify
 
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -194,6 +195,7 @@ class Search(View):
 
 	def get(self, request):
 		search = request.GET.get('query')
+		print('searching by', request.user)
 		if 'connection_slip_count' in request.session.keys() and 'proxy_ip' in request.session.keys():
 			print('connection_slip_count andd proxy exists')
 			if request.session['connection_slip_count'] == 0:
@@ -273,6 +275,7 @@ class BookDetail(Search):
 	
 	def get(self, request, pk, slug):
 		book = get_object_or_404(models.Book, id=pk)
+		print('searching by', request.user)
 		if 'connection_slip_count' in request.session.keys() and 'proxy_ip' in request.session.keys():
 			print('connection_slip_count andd proxy exists')
 			if request.session['connection_slip_count'] == 0:
@@ -315,7 +318,7 @@ class BookDetail(Search):
 			proxy =  choice(models.Proxy.objects.all())
 			request.session['proxy_ip'] = proxy.ip
 			request.session['proxy_port'] = proxy.port
-		context = self.parsed(search=book.name, proxy='{0}:{1}'.format(request.session['proxy_ip'], request.session['proxy_port']))
+		context = self.parsed(search=book.customerName, proxy='{0}:{1}'.format(request.session['proxy_ip'], request.session['proxy_port']))
 		if context['set_connection_slip_count_to_zero']:
 			print('connection_slip_count set to 0')
 			request.session['connection_slip_count'] = 0
@@ -590,6 +593,12 @@ class ContactUs(View):
 		email = request.POST.get('email')
 		if text and email:
 			msg = models.Msg.objects.create(email=email, text=text)
+			email = EmailMessage(
+				subject='New Message arrived',
+				body=f'from: {msg.email}\n\n{msg.text}',
+				from_email='Message Box <server@librarygenesis.in>',
+				to=['himanshu.pharawal@librarygenesis.in'])
+			email.send()
 			return HttpResponse(f'Thanks for contacting us. If it was a question we will get back to you soon. Token number is {msg.id}')
 		else:
 			models.Msg.objects.create(email='self@librarygenesis.in', text='Contact Us page is not working! text or email have recieved as none instead of object.\nemail = {email}\ntext = {text}')
@@ -603,6 +612,7 @@ class BookClicked(LoginRequiredMixin, View):
 	def get(self, request):
 		prefix = 'https://libgen.lc/ads.php?md5='
 		md5 = request.GET.get('id')
+		name = request.GET.get('name')
 		if md5:
 			link = prefix + md5
 			try:
@@ -612,6 +622,7 @@ class BookClicked(LoginRequiredMixin, View):
 				response = requests.get(link, proxies={'http': '{0}:{1}'.format(request.session['proxy_ip'], request.session['proxy_port'])}, headers=headers)
 				bsobj = BeautifulSoup(response.text)
 				final_link = bsobj.find('table').findAll('tr')[0].findAll('td')[1].a['href']
+				models.Book.objects.create(user=request.user, name=name, slug=slugify(name))
 			except Exception as e:
 				email = EmailMessage(
 					subject='Book download link was not received',

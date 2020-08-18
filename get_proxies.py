@@ -28,6 +28,7 @@ print(base_dir)
 r = requests.get('https://free-proxy-list.net/')
 bsobj = BeautifulSoup(r.text)
 proxies = [models.Proxy(ip=tr.findAll('td')[0].get_text(), port=tr.findAll('td')[1].get_text()) for tr in bsobj.find('tbody').findAll('tr') if tr.findAll('td')[6].get_text() == 'no']
+models.Proxy.objects.all().delete()
 models.Proxy.objects.bulk_create(proxies)
 # from collections import OrderedDict
 
