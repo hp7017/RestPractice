@@ -273,7 +273,63 @@ class BookDetail(Search):
 	
 	def get(self, request, pk, slug):
 		book = get_object_or_404(models.Book, id=pk)
-		context = self.parsed(search=book.name)
+		if 'connection_slip_count' in request.session.keys() and 'proxy_ip' in request.session.keys():
+			print('connection_slip_count andd proxy exists')
+			if request.session['connection_slip_count'] == 0:
+				print('connection_slip_count is 0')
+				print('assign previous proxy(if exists) or random')
+				if models.Proxy.objects.filter(ip=request.session['proxy_ip']).exists():
+					proxy = models.Proxy.objects.filter(ip=request.session['proxy_ip'])
+					proxy = proxy[0]
+				else:
+					proxy =  choice(models.Proxy.objects.all())
+					request.session['proxy_ip'] = proxy.ip
+					request.session['proxy_port'] = proxy.port
+			elif request.session['connection_slip_count'] == 1:
+				print('connection_slip_count is 1')
+				proxy =  choice(models.Proxy.objects.all())
+				request.session['proxy_ip'] = proxy.ip
+				request.session['proxy_port'] = proxy.port
+			elif request.session['connection_slip_count'] == 2:
+				print('connection_slip_count is 2')
+				count = request.session['connection_slip_count']
+				proxy = self.worked_proxy()
+				request.session['proxy_ip'] = proxy.ip
+				request.session['proxy_port'] = proxy.port
+			else:
+				print('connection_slip_count is [more than 2]')
+				count = request.session['connection_slip_count']
+				email = EmailMessage(
+					subject='[Django Server] Slips count exceed more than 1.',
+					body=f'class Search\nmethod = Get\nnote = {count}\nuser = {request.user}',
+					from_email='Django Server <server@librarygenesis.in>',
+					to=['himanshu.pharawal@librarygenesis.in'])
+				email.send()
+				print('email sent')
+				proxy = self.worked_proxy()
+				request.session['proxy_ip'] = proxy.ip
+				request.session['proxy_port'] = proxy.port
+		else:
+			print('connection_slip_count does not exists')
+			request.session['connection_slip_count'] = 0
+			proxy =  choice(models.Proxy.objects.all())
+			request.session['proxy_ip'] = proxy.ip
+			request.session['proxy_port'] = proxy.port
+		context = self.parsed(search=book.name, proxy='{0}:{1}'.format(request.session['proxy_ip'], request.session['proxy_port']))
+		if context['set_connection_slip_count_to_zero']:
+			print('connection_slip_count set to 0')
+			request.session['connection_slip_count'] = 0
+		if context['increamet_connection_slip_count']:
+			print('connection_slip_count incremented by 1')
+			request.session['connection_slip_count'] += 1
+		if context['set_proxy_worked']:
+			if proxy.worked == False:
+				print('proxy worked set to True')
+				proxy.worked = True
+				proxy.save()
+		if context['delete_proxy']:
+			print('proxy deleted')
+			proxy.delete()
 		return render(request, 'search-result.html', context=context)
 
 class Evaluation(LoginRequiredMixin, View):
