@@ -6,9 +6,6 @@ import json
 from datetime import datetime
 
 # Register your models here.
-class BookInline(admin.StackedInline):
-	model = models.Book
-
 class SearchInline(admin.TabularInline):
 	model = models.Search
 
@@ -41,7 +38,6 @@ class CustomUserAdmin(UserAdmin):
 class SearchAdmin(admin.ModelAdmin):
 	list_display = ['search', 'user', 'date']
 	list_filter = ['date']
-	inlines = [BookInline]
 	actions = ['delete_all_searches_of_testing_user']
 
 	def delete_all_searches_of_testing_user(self, request, queryset):
@@ -49,7 +45,7 @@ class SearchAdmin(admin.ModelAdmin):
 
 class BookAdmin(admin.ModelAdmin):
 	readonly_fields = ['id']
-	list_display = ['name', 'user', 'search', 'date']
+	list_display = ['name', 'user', 'date']
 	# list_filter = ['date']
 	actions = ['delete_text_after_number', 'add_slug_from_name']
 

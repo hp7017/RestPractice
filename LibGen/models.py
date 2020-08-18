@@ -48,7 +48,6 @@ class Search(models.Model):
 class Book(models.Model):
 	user = models.ForeignKey(User, related_name='books', on_delete=models.CASCADE)
 	slug = models.SlugField(max_length=5000)
-	search = models.ForeignKey(Search, related_name='books', on_delete=models.CASCADE)
 	name = models.CharField(max_length=5000)
 	date = models.DateTimeField(auto_now_add=True)
 

@@ -225,7 +225,7 @@ class Search(View):
 					body=f'class Search\nmethod = Get\nnote = {count}\nuser = {request.user}',
 					from_email='Django Server <server@librarygenesis.in>',
 					to=['himanshu.pharawal@librarygenesis.in'])
-				# email.send()
+				email.send()
 				print('email sent')
 				proxy = self.worked_proxy()
 				request.session['proxy_ip'] = proxy.ip
