@@ -2,8 +2,9 @@
 RestPractice/env.py
 *.bak
 __pycache__
-emails.json
 execute_always.py
 media/
 staticfiles/
 proxies.json
+emails.json
+send_emails.py

@@ -44,7 +44,6 @@ class CustomSponsoredBook():
 class Index(View):
 
 	def get(self, request):
-		print(os.path.abspath(__file__))
 		if request.user.is_authenticated:
 			sponsored_books = models.SponsoredBook.objects.only('id', 'thumbnail', 'redirect_link').filter(keywords__title__in=[intrest.keyword for intrest in request.user.intrests.only('keyword')], status='Online').annotate(points=Count('id')).order_by('-points', '-bid')[:5]
 			models.SponsoredBook.objects.filter(id__in=[sponsored_book.id for sponsored_book in sponsored_books]).update(impressions_count=F('impressions_count')+1)
@@ -101,7 +100,7 @@ class Disclaimer(View):
 class Search(View):
 	'''When exception occur list out of index it might be cause of redire link.'''
 
-	def parsed(self, search, proxy, user=None):
+	def parsed(self, search, proxy=None, user=None, origin=False):
 		delete_proxy = False
 		words = []
 		having_related_words = False
@@ -134,6 +133,8 @@ class Search(View):
 		try_again = False
 		no_result_found = False
 		link = 'http://gen.lib.rus.ec/search.php?req={0}'.format(search)
+		if origin:
+			link = "https://cors-anywhere.herokuapp.com/{0}".format(link)
 		books = []
 		set_proxy_worked = False
 		delete_proxy = False
@@ -142,9 +143,16 @@ class Search(View):
 		try:
 			with open(os.path.join(base_dir, 'headers.json')) as f:
 				headers = choice(json.loads(f.read()))
+				headers['x-requested-with'] = ''
+				headers['XMLHttpRequest'] = ''
+			print(headers)
 			print(proxy)
-			r = requests.get(link, proxies={'http': proxy}, headers=headers, timeout=8)
-			bsobj = BeautifulSoup(r.text)
+			if origin:
+				r = requests.get(link, headers=headers, timeout=8)
+				bsobj = BeautifulSoup(r.text)
+			else:
+				r = requests.get(link, proxies={'http': proxy}, headers=headers, timeout=8)
+				bsobj = BeautifulSoup(r.text)
 			for tr in bsobj.findAll('table')[2].findAll('tr')[1:]:
 				tds = tr.findAll('td')
 				author = tds[1].a.get_text()
@@ -177,7 +185,6 @@ class Search(View):
 			try_again = True
 		if len(books) == 0:
 			no_result_found = True
-		print('pre contenxt')
 		context = {
 			'books': books,
 			'query': search,
@@ -274,65 +281,8 @@ class Search(View):
 class BookDetail(Search):
 	
 	def get(self, request, pk, slug):
-		book = get_object_or_404(models.Book, id=pk)
-		print('searching by', request.user)
-		if 'connection_slip_count' in request.session.keys() and 'proxy_ip' in request.session.keys():
-			print('connection_slip_count andd proxy exists')
-			if request.session['connection_slip_count'] == 0:
-				print('connection_slip_count is 0')
-				print('assign previous proxy(if exists) or random')
-				if models.Proxy.objects.filter(ip=request.session['proxy_ip']).exists():
-					proxy = models.Proxy.objects.filter(ip=request.session['proxy_ip'])
-					proxy = proxy[0]
-				else:
-					proxy =  choice(models.Proxy.objects.all())
-					request.session['proxy_ip'] = proxy.ip
-					request.session['proxy_port'] = proxy.port
-			elif request.session['connection_slip_count'] == 1:
-				print('connection_slip_count is 1')
-				proxy =  choice(models.Proxy.objects.all())
-				request.session['proxy_ip'] = proxy.ip
-				request.session['proxy_port'] = proxy.port
-			elif request.session['connection_slip_count'] == 2:
-				print('connection_slip_count is 2')
-				count = request.session['connection_slip_count']
-				proxy = self.worked_proxy()
-				request.session['proxy_ip'] = proxy.ip
-				request.session['proxy_port'] = proxy.port
-			else:
-				print('connection_slip_count is [more than 2]')
-				count = request.session['connection_slip_count']
-				email = EmailMessage(
-					subject='[Django Server] Slips count exceed more than 1.',
-					body=f'class Search\nmethod = Get\nnote = {count}\nuser = {request.user}',
-					from_email='Django Server <server@librarygenesis.in>',
-					to=['himanshu.pharawal@librarygenesis.in'])
-				email.send()
-				print('email sent')
-				proxy = self.worked_proxy()
-				request.session['proxy_ip'] = proxy.ip
-				request.session['proxy_port'] = proxy.port
-		else:
-			print('connection_slip_count does not exists')
-			request.session['connection_slip_count'] = 0
-			proxy =  choice(models.Proxy.objects.all())
-			request.session['proxy_ip'] = proxy.ip
-			request.session['proxy_port'] = proxy.port
-		context = self.parsed(search=book.customerName, proxy='{0}:{1}'.format(request.session['proxy_ip'], request.session['proxy_port']))
-		if context['set_connection_slip_count_to_zero']:
-			print('connection_slip_count set to 0')
-			request.session['connection_slip_count'] = 0
-		if context['increamet_connection_slip_count']:
-			print('connection_slip_count incremented by 1')
-			request.session['connection_slip_count'] += 1
-		if context['set_proxy_worked']:
-			if proxy.worked == False:
-				print('proxy worked set to True')
-				proxy.worked = True
-				proxy.save()
-		if context['delete_proxy']:
-			print('proxy deleted')
-			proxy.delete()
+		book = get_object_or_404(models.Book, id=pk)	
+		context = self.parsed(search=book.name, origin=True)
 		return render(request, 'search-result.html', context=context)
 
 class Evaluation(LoginRequiredMixin, View):
@@ -460,7 +410,7 @@ class RechargeClicked(View, LoginRequiredMixin):
 				"orderId": str(order.id),
 				"orderAmount" : str(amount),
 				"orderCurrency" : 'INR',
-				"customerName" : str(user.username),
+				"name" : str(user.username),
 				"customerPhone" : str(user.of_profile.phone),
 				"customerEmail" : str(user.email),
 				"returnUrl" : 'https://'+host+reverse('payment_return'),
@@ -480,7 +430,7 @@ class RechargeClicked(View, LoginRequiredMixin):
 				"orderId": postData['orderId'],
 				"orderAmount" : postData['orderAmount'],
 				"orderCurrency" : postData['orderCurrency'],
-				"customerName" : postData['customerName'],
+				"name" : postData['name'],
 				"customerPhone" : postData['customerPhone'],
 				"customerEmail" : postData['customerEmail'],
 				"returnUrl" : postData['returnUrl'],
