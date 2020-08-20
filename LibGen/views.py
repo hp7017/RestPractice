@@ -145,7 +145,6 @@ class Search(View):
 				headers = choice(json.loads(f.read()))
 				headers['x-requested-with'] = ''
 				headers['XMLHttpRequest'] = ''
-			print(headers)
 			print(proxy)
 			if origin:
 				r = requests.get(link, headers=headers, timeout=8)
@@ -179,7 +178,6 @@ class Search(View):
 				set_connection_slip_count_to_zero = True
 				set_proxy_worked = True
 		except Exception as e:
-			print(type(e), e)
 			delete_proxy = True
 			increamet_connection_slip_count = True
 			try_again = True
@@ -217,7 +215,7 @@ class Search(View):
 					request.session['proxy_port'] = proxy.port
 			elif request.session['connection_slip_count'] == 1:
 				print('connection_slip_count is 1')
-				proxy =  choice(models.Proxy.objects.all())
+				proxy =  choice	(models.Proxy.objects.all())
 				request.session['proxy_ip'] = proxy.ip
 				request.session['proxy_port'] = proxy.port
 			elif request.session['connection_slip_count'] == 2:
@@ -564,7 +562,7 @@ class BookClicked(LoginRequiredMixin, View):
 		md5 = request.GET.get('id')
 		name = request.GET.get('name')
 		if md5:
-			link = prefix + md5
+			link = prefix + md5[2:]
 			try:
 				with open(os.path.join(base_dir, 'headers.json')) as f:
 					headers = choice(json.loads(f.read()))
@@ -573,7 +571,9 @@ class BookClicked(LoginRequiredMixin, View):
 				bsobj = BeautifulSoup(response.text)
 				final_link = bsobj.find('table').findAll('tr')[0].findAll('td')[1].a['href']
 				models.Book.objects.create(user=request.user, name=name, slug=slugify(name))
+				print(final_link)
 			except Exception as e:
+				print(e)
 				email = EmailMessage(
 					subject='Book download link was not received',
 					body=f'class = BookClicked\nmethod = get\ncomplete error = {e}',

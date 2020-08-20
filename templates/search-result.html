@@ -17,6 +17,7 @@
 					'id': $(this).attr('href'),
 					'name': $(this).attr('title')
 				}, function(data){
+					console.log(data)
 					window.location.href = data;
 					$(".overlay").hide()
 				})
