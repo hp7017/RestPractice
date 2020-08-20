@@ -571,9 +571,7 @@ class BookClicked(LoginRequiredMixin, View):
 				bsobj = BeautifulSoup(response.text)
 				final_link = bsobj.find('table').findAll('tr')[0].findAll('td')[1].a['href']
 				models.Book.objects.create(user=request.user, name=name, slug=slugify(name))
-				print(final_link)
 			except Exception as e:
-				print(e)
 				email = EmailMessage(
 					subject='Book download link was not received',
 					body=f'class = BookClicked\nmethod = get\ncomplete error = {e}',

@@ -36,7 +36,7 @@
 		{% else %}
 			{% for book in books %}
 				<section class="section">
-					<h2><a href="m/{{ book.md5 }}" class="book_link" title="{{book.title}}">{{ book.title }}</a></h2>
+					<h2><p href="m/{{ book.md5 }}" class="book_link" title="{{book.title}}">{{ book.title }}</p></h2>
 					<div class="table-scroll">
 						<table>
 							<tr>
@@ -49,7 +49,7 @@
 							</tr>
 							<tr>
 								<td>Extension</td>
-								<td>{{ book.extension }} | <a href="{{ book.md5 }}" class="book_link download_link" title="{{book.title}}"><i class="material-icons">get_app</i> Download</a></td>
+								<td>{{ book.extension }} | <span href="m/{{ book.md5 }}" class="book_link download_link" title="{{book.title}}"><i class="material-icons">get_app</i> Download</span></td>
 							</tr>
 						</table>
 					</div>	
