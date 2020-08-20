@@ -4,6 +4,7 @@ from django.contrib.sitemaps.views import sitemap
 from . import models
 from django.contrib.sitemaps import GenericSitemap, Sitemap
 from django.shortcuts import reverse
+from django.http import HttpResponse
 
 info_dict = {
 	'queryset': models.Book.objects.all()
@@ -37,5 +38,6 @@ urlpatterns = [
 	path('our-policy', views.our_policy, name='our_policy'),
 	path('terms-condition', views.terms_condition, name='terms_condition'),
 	path('about-us', views.about_us, name='about_us'),
-	path('registration', views.Registration.as_view(), name='registration')
+	path('registration', views.Registration.as_view(), name='registration'),
+	path('robots.txt', lambda x: HttpResponse("User-Agent: *\nDisallow: /books/*/m/*", content_type="text/plain"), name="robots_file")
 ]

@@ -229,12 +229,12 @@ class Search(View):
 			else:
 				print('connection_slip_count is [more than 2]')
 				count = request.session['connection_slip_count']
-				email = EmailMessage(
-					subject='[Django Server] Slips count exceed more than 1.',
-					body=f'class Search\nmethod = Get\nnote = {count}\nuser = {request.user}',
-					from_email='Django Server <server@librarygenesis.in>',
-					to=['himanshu.pharawal@librarygenesis.in'])
-				email.send()
+				# email = EmailMessage(
+				# 	subject='[Django Server] Slips count exceed more than 1.',
+				# 	body=f'class Search\nmethod = Get\nnote = {count}\nuser = {request.user}',
+				# 	from_email='Django Server <server@librarygenesis.in>',
+				# 	to=['himanshu.pharawal@librarygenesis.in'])
+				# email.send()
 				print('email sent')
 				proxy = self.worked_proxy()
 				request.session['proxy_ip'] = proxy.ip
