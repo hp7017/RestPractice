@@ -130,7 +130,7 @@ class Search(View):
 		link = 'https://cors-anywhere.herokuapp.com/http://gen.lib.rus.ec/search.php?req={0}'.format(search)
 		books = []
 		try:
-			with open('headers.json') as f:
+			with open(os.path.join(base_dir, 'headers.json')) as f:
 				headers = choice(json.loads(f.read()))
 			headers['origin'] = ''
 			headers['X-Forwarded-For'] = visitor_ip
@@ -189,8 +189,9 @@ class Search(View):
 class BookDetail(Search):
 	
 	def get(self, request, pk, slug):
+		visitor_ip = request.META.get('HTTP_X_REAL_IP')
 		book = get_object_or_404(models.Book, id=pk)	
-		context = self.parsed(search=book.name)
+		context = self.parsed(search=book.name, visitor_ip=visitor_ip)
 		return render(request, 'search-result.html', context=context)
 
 class Evaluation(LoginRequiredMixin, View):
@@ -468,7 +469,8 @@ class BookClicked(LoginRequiredMixin, View):
 		return HttpResponse(reverse('login'))
 
 	def get(self, request):
-		prefix = 'https://libgen.lc/ads.php?md5='
+		prefix = 'https://cors-anywhere.herokuapp.com/https://libgen.lc/ads.php?md5='
+		visitor_ip = request.META.get('HTTP_X_REAL_IP')
 		md5 = request.GET.get('id')
 		name = request.GET.get('name')
 		if md5:
@@ -476,8 +478,10 @@ class BookClicked(LoginRequiredMixin, View):
 			try:
 				with open(os.path.join(base_dir, 'headers.json')) as f:
 					headers = choice(json.loads(f.read()))
-				print('{0}:{1}'.format(request.session['proxy_ip'], request.session['proxy_port']))
-				response = requests.get(link, proxies={'http': '{0}:{1}'.format(request.session['proxy_ip'], request.session['proxy_port'])}, headers=headers)
+					headers['origin'] = ''
+					headers['X-Forwarded-For'] = visitor_ip
+					headers['X-Real-IP'] = visitor_ip
+				response = requests.get(link,  headers=headers)
 				bsobj = BeautifulSoup(response.text)
 				final_link = bsobj.find('table').findAll('tr')[0].findAll('td')[1].a['href']
 				if slugify(name) != '':

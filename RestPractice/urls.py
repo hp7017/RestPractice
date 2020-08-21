@@ -17,7 +17,10 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-
+admin.site.site_header = 'Library Genesis App admin'
+admin.site.site_title = 'Library Genesis App admin'
+admin.site.index_title = 'Library Genesis App administration'
+admin.empty_value_display = '**Empty**'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
