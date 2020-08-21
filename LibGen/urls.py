@@ -13,7 +13,7 @@ info_dict = {
 class StaticSitemap(Sitemap):
 
 	def items(self):
-		return ['index', 'profile', 'disclaimer', 'contact_us', 'about_us', 'registration', 'terms_condition', 'our_policy', 'ads-manager']
+		return ['index', 'profile', 'contact_us', 'about_us', 'registration', 'terms_condition', 'our_policy', 'ads-manager']
 
 	def location(self, item):
 		return reverse(item)
@@ -21,7 +21,6 @@ class StaticSitemap(Sitemap):
 urlpatterns = [
 	path('', views.Index.as_view(), name='index'),
 	path('profile', views.Profile.as_view(), name='profile'),
-	path('disclaimer', views.Disclaimer.as_view(), name='disclaimer'),
 	path('search', views.Search.as_view(), name='search'),
 	path('evaluations', views.Evaluation.as_view(), name='evaluations'),
 	path('books/<slug:slug>/<int:pk>', views.BookDetail.as_view(), name='books'),

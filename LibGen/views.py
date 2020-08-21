@@ -92,15 +92,10 @@ class Profile(LoginRequiredMixin, View):
 				email.send()
 		return redirect(reverse('profile'))
 
-class Disclaimer(View):
-
-	def get(self, request):
-		return render(request, 'disclaimer.html')
-
 class Search(View):
 	'''When exception occur list out of index it might be cause of redire link.'''
 
-	def parsed(self, search, proxy=None, user=None, origin=False):
+	def parsed(self, search, visitor_ip, user=None):
 		delete_proxy = False
 		words = []
 		having_related_words = False
@@ -132,26 +127,16 @@ class Search(View):
 			words.append(synonym_and_def)
 		try_again = False
 		no_result_found = False
-		link = 'http://gen.lib.rus.ec/search.php?req={0}'.format(search)
-		if origin:
-			link = "https://cors-anywhere.herokuapp.com/{0}".format(link)
+		link = 'https://cors-anywhere.herokuapp.com/http://gen.lib.rus.ec/search.php?req={0}'.format(search)
 		books = []
-		set_proxy_worked = False
-		delete_proxy = False
-		set_connection_slip_count_to_zero = False
-		increamet_connection_slip_count = False
 		try:
-			with open(os.path.join(base_dir, 'headers.json')) as f:
+			with open('headers.json') as f:
 				headers = choice(json.loads(f.read()))
-				headers['x-requested-with'] = ''
-				headers['XMLHttpRequest'] = ''
-			print(proxy)
-			if origin:
-				r = requests.get(link, headers=headers, timeout=8)
-				bsobj = BeautifulSoup(r.text)
-			else:
-				r = requests.get(link, proxies={'http': proxy}, headers=headers, timeout=8)
-				bsobj = BeautifulSoup(r.text)
+			headers['origin'] = ''
+			headers['X-Forwarded-For'] = visitor_ip
+			headers['X-Real-IP'] = visitor_ip
+			r = requests.get(link, headers=headers, timeout=8)
+			bsobj = BeautifulSoup(r.text)
 			for tr in bsobj.findAll('table')[2].findAll('tr')[1:]:
 				tds = tr.findAll('td')
 				author = tds[1].a.get_text()
@@ -175,11 +160,7 @@ class Search(View):
 				book.extension = extension
 				book.md5 = new_link[new_link.index('=')+1:]
 				books.append(book)
-				set_connection_slip_count_to_zero = True
-				set_proxy_worked = True
 		except Exception as e:
-			delete_proxy = True
-			increamet_connection_slip_count = True
 			try_again = True
 		if len(books) == 0:
 			no_result_found = True
@@ -191,96 +172,25 @@ class Search(View):
 			'words': words,
 			'having_related_words': having_related_words,
 			'having_definitions': having_definitions,
-			'set_connection_slip_count_to_zero': set_connection_slip_count_to_zero,
-			'increamet_connection_slip_count': increamet_connection_slip_count,
-			'set_proxy_worked': set_proxy_worked,
-			'delete_proxy': delete_proxy
 		}
 		return context
 
 	def get(self, request):
 		search = request.GET.get('query')
-		print('searching by', request.user)
-		if 'connection_slip_count' in request.session.keys() and 'proxy_ip' in request.session.keys():
-			print('connection_slip_count andd proxy exists')
-			if request.session['connection_slip_count'] == 0:
-				print('connection_slip_count is 0')
-				print('assign previous proxy(if exists) or random')
-				if models.Proxy.objects.filter(ip=request.session['proxy_ip']).exists():
-					proxy = models.Proxy.objects.filter(ip=request.session['proxy_ip'])
-					proxy = proxy[0]
-				else:
-					proxy =  choice(models.Proxy.objects.all())
-					request.session['proxy_ip'] = proxy.ip
-					request.session['proxy_port'] = proxy.port
-			elif request.session['connection_slip_count'] == 1:
-				print('connection_slip_count is 1')
-				proxy =  choice	(models.Proxy.objects.all())
-				request.session['proxy_ip'] = proxy.ip
-				request.session['proxy_port'] = proxy.port
-			elif request.session['connection_slip_count'] == 2:
-				print('connection_slip_count is 2')
-				count = request.session['connection_slip_count']
-				proxy = self.worked_proxy()
-				request.session['proxy_ip'] = proxy.ip
-				request.session['proxy_port'] = proxy.port
-			else:
-				print('connection_slip_count is [more than 2]')
-				count = request.session['connection_slip_count']
-				# email = EmailMessage(
-				# 	subject='[Django Server] Slips count exceed more than 1.',
-				# 	body=f'class Search\nmethod = Get\nnote = {count}\nuser = {request.user}',
-				# 	from_email='Django Server <server@librarygenesis.in>',
-				# 	to=['himanshu.pharawal@librarygenesis.in'])
-				# email.send()
-				print('email sent')
-				proxy = self.worked_proxy()
-				request.session['proxy_ip'] = proxy.ip
-				request.session['proxy_port'] = proxy.port
-		else:
-			print('connection_slip_count does not exists')
-			request.session['connection_slip_count'] = 0
-			proxy =  choice(models.Proxy.objects.all())
-			request.session['proxy_ip'] = proxy.ip
-			request.session['proxy_port'] = proxy.port
+		visitor_ip = request.META.get('HTTP_X_REAL_IP')
 		if request.user.is_authenticated:
 			search_model = models.Search(search=search, user=request.user)
 			search_model.save()
-			# request.session['proxy_ip'] = '18.130.89.239'
-			# request.session['proxy_port'] = '80'
-			context = self.parsed(search=search, user=request.user, proxy='{0}:{1}'.format(request.session['proxy_ip'], request.session['proxy_port']))
+			context = self.parsed(search=search, user=request.user, visitor_ip=visitor_ip)
 		else:
-			# request.session['proxy_ip'] = '18.130.89.239'
-			# request.session['proxy_port'] = '80'
-			context = self.parsed(search=search, proxy='{0}:{1}'.format(request.session['proxy_ip'], request.session['proxy_port']))
-		if context['set_connection_slip_count_to_zero']:
-			print('connection_slip_count set to 0')
-			request.session['connection_slip_count'] = 0
-		if context['increamet_connection_slip_count']:
-			print('connection_slip_count incremented by 1')
-			request.session['connection_slip_count'] += 1
-		if context['set_proxy_worked']:
-			if proxy.worked == False:
-				print('proxy worked set to True')
-				proxy.worked = True
-				proxy.save()
-		if context['delete_proxy']:
-			print('proxy deleted')
-			proxy.delete()
+			context = self.parsed(search=search, visitor_ip=visitor_ip)
 		return render(request, 'search-result.html', context=context)
-
-	def worked_proxy(self):
-		if models.Proxy.objects.filter(worked=True).exists():
-			proxy = choice(models.Proxy.objects.filter(worked=True))
-		else:
-			proxy =  choice(models.Proxy.objects.all())
-		return proxy
 
 class BookDetail(Search):
 	
 	def get(self, request, pk, slug):
 		book = get_object_or_404(models.Book, id=pk)	
-		context = self.parsed(search=book.name, origin=True)
+		context = self.parsed(search=book.name)
 		return render(request, 'search-result.html', context=context)
 
 class Evaluation(LoginRequiredMixin, View):
