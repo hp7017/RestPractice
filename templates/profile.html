@@ -173,7 +173,7 @@
 		{% if user.books.exists %}
 			<ul>
 				{% for book in user.books.all|slice:":5" %}
-				<li><a href="{% url 'books' pk=book.id %}">{{ book.name }}</a></li>
+				<li><a href="{% url 'books' pk=book.id slug=book.slug %}">{{ book.name }}</a></li>
 				{% endfor %}
 			</ul>
 			<p>and many more.</p>
