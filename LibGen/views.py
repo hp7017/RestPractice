@@ -562,7 +562,7 @@ class BookClicked(LoginRequiredMixin, View):
 		md5 = request.GET.get('id')
 		name = request.GET.get('name')
 		if md5:
-			link = prefix + md5[2:]
+			link = prefix + md5
 			try:
 				with open(os.path.join(base_dir, 'headers.json')) as f:
 					headers = choice(json.loads(f.read()))

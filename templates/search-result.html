@@ -17,7 +17,6 @@
 					'id': $(this).attr('href'),
 					'name': $(this).attr('title')
 				}, function(data){
-					console.log(data)
 					window.location.href = data;
 					$(".overlay").hide()
 				})
@@ -36,7 +35,7 @@
 		{% else %}
 			{% for book in books %}
 				<section class="section">
-					<h2><p href="m/{{ book.md5 }}" class="book_link" title="{{book.title}}">{{ book.title }}</p></h2>
+					<h2><a href="{{ book.md5 }}" class="book_link" title="{{book.title}}" rel="nofollow">{{ book.title }}</a></h2>
 					<div class="table-scroll">
 						<table>
 							<tr>
@@ -49,7 +48,7 @@
 							</tr>
 							<tr>
 								<td>Extension</td>
-								<td>{{ book.extension }} | <span href="m/{{ book.md5 }}" class="book_link download_link" title="{{book.title}}"><i class="material-icons">get_app</i> Download</span></td>
+								<td>{{ book.extension }} | <a href="{{ book.md5 }}" class="book_link download_link" title="{{book.title}}" rel="nofollow"><i class="material-icons">get_app</i> Download</a></td>
 							</tr>
 						</table>
 					</div>	

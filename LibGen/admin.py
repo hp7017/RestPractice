@@ -45,7 +45,7 @@ class SearchAdmin(admin.ModelAdmin):
 
 class BookAdmin(admin.ModelAdmin):
 	readonly_fields = ['id']
-	list_display = ['name', 'user', 'date']
+	list_display = ['id', 'name', 'user', 'date']
 	# list_filter = ['date']
 	actions = ['delete_text_after_number', 'add_slug_from_name']
 
