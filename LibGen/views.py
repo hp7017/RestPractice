@@ -484,8 +484,10 @@ class BookClicked(LoginRequiredMixin, View):
 				response = requests.get(link,  headers=headers)
 				bsobj = BeautifulSoup(response.text)
 				final_link = bsobj.find('table').findAll('tr')[0].findAll('td')[1].a['href']
-				if slugify(name) != '':
-					models.Book.objects.create(user=request.user, name=name, slug=slugify(name))
+				name = slugify(name)
+				if name != '':
+					if not models.Book.objects.filter(slug=name).exists():
+						models.Book.objects.create(user=request.user, name=name, slug=slugify(name))
 			except Exception as e:
 				email = EmailMessage(
 					subject='Book download link was not received',
