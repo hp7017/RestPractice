@@ -475,7 +475,7 @@ class BookClicked(LoginRequiredMixin, View):
 		return HttpResponse(reverse('login'))
 
 	def get(self, request):
-		prefix = 'https://cors-anywhere.herokuapp.com/https://libgen.lc/ads.php?md5='
+		prefix = 'https://libgen.lc/ads.php?md5='
 		visitor_ip = request.META.get('HTTP_X_REAL_IP')
 		md5 = request.GET.get('id')
 		name = request.GET.get('name')
@@ -487,7 +487,7 @@ class BookClicked(LoginRequiredMixin, View):
 					headers['origin'] = ''
 					headers['X-Forwarded-For'] = visitor_ip
 					headers['X-Real-IP'] = visitor_ip
-				response = requests.get(link,  headers=headers)
+				response = requests.get(link,  headers=headers, proxies={'https': 'https://xvfdrygu-rotate:xnevmqeix7ng@p.webshare.io:19999'}, timeout=8)
 				bsobj = BeautifulSoup(response.text)
 				final_link = bsobj.find('table').findAll('tr')[0].findAll('td')[1].a['href']
 				name = slugify(name)
