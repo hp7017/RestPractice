@@ -135,7 +135,7 @@ class Search(View):
 			headers['origin'] = ''
 			# headers['X-Forwarded-For'] = visitor_ip
 			# headers['X-Real-IP'] = visitor_ip
-			r = requests.get(link, headers=headers, timeout=8, proxies={'https': 'https://xvfdrygu-rotate:xnevmqeix7ng@p.webshare.io:19999'})
+			r = requests.get(link, headers=headers, timeout=8, proxies={'https': 'https://xvfdrygu-rotate:xnevmqeix7ng@p.webshare.io:80'})
 			bsobj = BeautifulSoup(r.text)
 			for tr in bsobj.findAll('table')[2].findAll('tr')[1:]:
 				tds = tr.findAll('td')
@@ -487,7 +487,7 @@ class BookClicked(LoginRequiredMixin, View):
 					headers['origin'] = ''
 					headers['X-Forwarded-For'] = visitor_ip
 					headers['X-Real-IP'] = visitor_ip
-				response = requests.get(link,  headers=headers, proxies={'https': 'https://xvfdrygu-rotate:xnevmqeix7ng@p.webshare.io:19999'}, timeout=8)
+				response = requests.get(link,  headers=headers, proxies={'https': 'https://xvfdrygu-rotate:xnevmqeix7ng@p.webshare.io:80'}, timeout=8)
 				bsobj = BeautifulSoup(response.text)
 				final_link = bsobj.find('table').findAll('tr')[0].findAll('td')[1].a['href']
 				name = slugify(name)
