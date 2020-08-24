@@ -165,7 +165,7 @@ class Search(View):
 				from_email='Django Server <server@librarygenesis.in>',
 				to=['himanshu.pharawal@librarygenesis.in'],
 				subject='Exception occured while parsing',
-				body=f'class=Search\nfunction=parsed\nuser={user}\nerror={e}')
+				body=f'class=Search\nfunction=parsed\nuser={user}\nerror={e}\ncode={r.text}')
 			email.send()
 			try_again = True
 		if len(books) == 0:
