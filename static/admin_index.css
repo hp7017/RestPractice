@@ -1,0 +1,48 @@
+
+.flex {
+	display: flex;
+}
+
+.space-between {
+	justify-content: space-between;
+}
+
+.flex-grow {
+	flex-grow: 1;
+}
+
+.flex-gap-10 {
+	margin: 10px;
+}
+
+.flex-flow-coloumn {
+	direction: column;
+}
+
+.flex-end {
+	justify-content: flex-end;
+}
+
+.align-center {
+	align-items: center;
+}
+
+.column {
+	direction: column;
+}
+
+.gap-10:first-child {
+	margin-left: 0 !important;
+}
+
+.gap-10:last-child {
+	margin-right: 0 !important;
+}
+
+.gap-10>* {
+	margin: 0 5px;
+}
+
+.vertical-center {
+	align-items: center;
+}

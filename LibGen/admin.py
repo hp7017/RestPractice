@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from . import models
 import json
 from datetime import datetime
+import os
 
 # Register your models here.
 class SearchInline(admin.TabularInline):
@@ -39,6 +40,8 @@ class SearchAdmin(admin.ModelAdmin):
 	list_display = ['search', 'user', 'date']
 	list_filter = ['date']
 	actions = ['delete_all_searches_of_testing_user']
+	date_hierarchy = 'date'
+	search_fields = ['user__username', 'search']
 
 	def delete_all_searches_of_testing_user(self, request, queryset):
 		models.Search.objects.filter(user_id=3301).delete()

@@ -127,15 +127,15 @@ class Search(View):
 			words.append(synonym_and_def)
 		try_again = False
 		no_result_found = False
-		link = 'https://cors-anywhere.herokuapp.com/http://gen.lib.rus.ec/search.php?req={0}'.format(search)
+		link = 'http://gen.lib.rus.ec/search.php?req={0}'.format(search)
 		books = []
 		try:
 			with open(os.path.join(base_dir, 'headers.json')) as f:
 				headers = choice(json.loads(f.read()))
 			headers['origin'] = ''
-			headers['X-Forwarded-For'] = visitor_ip
-			headers['X-Real-IP'] = visitor_ip
-			r = requests.get(link, headers=headers, timeout=8)
+			# headers['X-Forwarded-For'] = visitor_ip
+			# headers['X-Real-IP'] = visitor_ip
+			r = requests.get(link, headers=headers, timeout=8, proxies={'https': 'https://xvfdrygu-rotate:xnevmqeix7ng@p.webshare.io:19999'})
 			bsobj = BeautifulSoup(r.text)
 			for tr in bsobj.findAll('table')[2].findAll('tr')[1:]:
 				tds = tr.findAll('td')
@@ -161,6 +161,12 @@ class Search(View):
 				book.md5 = new_link[new_link.index('=')+1:]
 				books.append(book)
 		except Exception as e:
+			email = EmailMessage(
+				from_email='Django Server <server@librarygenesis.in>',
+				to=['himanshu.pharawal@librarygenesis.in'],
+				subject='Exception occured while parsing',
+				body=f'class=Search\nfunction=parsed\nuser={user}\nerror={e}')
+			email.send()
 			try_again = True
 		if len(books) == 0:
 			no_result_found = True

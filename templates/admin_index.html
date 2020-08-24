@@ -1,0 +1,35 @@
+{% extends 'admin/index.html' %}
+{% load static %}
+{% block extrastyle %}
+	{{ block.super }}
+	<link rel="stylesheet" type="text/css" href="{% static 'admin_index.css' %}">
+{% endblock %}
+{% load static %}
+{% block content %}
+	<div style="margin: 10px 0;">
+		<details>
+			<summary style="background-color: #2980b9; border-radius: 10px; color: white; padding: 10px 20px;">Email Dashboard</summary>
+			<div class="flex gap-10 vertical-center" style="margin: 10px 0">
+				<p>From</p>
+				<input type="text" name="from_email" disabled value="notify@librarygenesis.in" class="flex-grow">
+			</div>
+			<div class="flex gap-10 vertical-center" style="margin: 10px 0">
+				<p>CC</p>
+				<input type="text" name="cc" class="flex-grow">
+			</div>
+			<div class="flex gap-10 vertical-center" style="margin: 10px 0">
+				<p>To</p>
+				<input type="text" name="to" class="flex-grow">
+			</div>
+			<div class="flex gap-10 vertical-center" style="margin: 10px 0">
+				<p>Subject</p>
+				<input type="text" name="subject" class="flex-grow">
+			</div>
+			<textarea style="height: 200px; width: 97%;"></textarea>
+			<div class="flex flex-end">
+				<input type="submit" value="Send">
+			</div>
+		</details>
+	</div>
+	{{block.super}}
+{% endblock %}
