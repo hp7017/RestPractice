@@ -69,3 +69,13 @@ class RegistrationForm(UserCreationForm):
 		if commit:
 			user.save()
 		return user
+
+class EmailDashboardForm(forms.Form):
+	from_email = forms.CharField(widget=forms.EmailInput, required=False)
+	to = forms.CharField()
+	cc = forms.CharField(required=False)
+	subject = forms.CharField()
+	body = forms.CharField(widget=forms.Textarea)
+
+	def clean_from_email(self):
+		return 'Notification <notify@librarygenesis.in>'

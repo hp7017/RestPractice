@@ -46,3 +46,22 @@
 .vertical-center {
 	align-items: center;
 }
+
+.errors {
+	background-color: #e74c3c;
+	color: white;
+	border-radius: 10px;
+}
+
+.wrap {
+	flex-wrap: wrap;
+}
+
+.list-style-none li {
+	list-style-type: none;
+}
+
+.clickable {
+	color: #3498db;
+	cursor: pointer;
+}

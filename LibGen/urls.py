@@ -38,5 +38,6 @@ urlpatterns = [
 	path('terms-condition', views.terms_condition, name='terms_condition'),
 	path('about-us', views.about_us, name='about_us'),
 	path('registration', views.Registration.as_view(), name='registration'),
-	path('robots.txt', lambda x: HttpResponse("User-Agent: *\nDisallow: /books/*/m/*\nDisallow: /m/*", content_type="text/plain"), name="robots_file")
+	path('robots.txt', lambda x: HttpResponse("User-Agent: *\nDisallow: /books/*/m/*\nDisallow: /m/*", content_type="text/plain"), name="robots_file"),
+	path('email-dashboard', views.EmailDashboard.as_view(), name='email_dashboard')
 ]

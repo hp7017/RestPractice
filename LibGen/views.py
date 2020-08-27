@@ -96,6 +96,7 @@ class Search(View):
 	'''When exception occur list out of index it might be cause of redire link.'''
 
 	def parsed(self, search, visitor_ip, user=None):
+		print(f'parsed called with search={search} and user={user}')
 		delete_proxy = False
 		words = []
 		having_related_words = False
@@ -130,12 +131,10 @@ class Search(View):
 		link = 'http://gen.lib.rus.ec/search.php?req={0}'.format(search)
 		books = []
 		try:
+			print('try block')
 			with open(os.path.join(base_dir, 'headers.json')) as f:
 				headers = choice(json.loads(f.read()))
-			headers['origin'] = ''
-			# headers['X-Forwarded-For'] = visitor_ip
-			# headers['X-Real-IP'] = visitor_ip
-			r = requests.get(link, headers=headers, timeout=8, proxies={'https': 'https://xvfdrygu-rotate:xnevmqeix7ng@p.webshare.io:80'})
+			r = requests.get(link, headers=headers, timeout=10, proxies={'https': 'https://xvfdrygu-rotate:xnevmqeix7ng@p.webshare.io:80'})
 			bsobj = BeautifulSoup(r.text)
 			for tr in bsobj.findAll('table')[2].findAll('tr')[1:]:
 				tds = tr.findAll('td')
@@ -161,12 +160,11 @@ class Search(View):
 				book.md5 = new_link[new_link.index('=')+1:]
 				books.append(book)
 		except Exception as e:
-			email = EmailMessage(
-				from_email='Django Server <server@librarygenesis.in>',
-				to=['himanshu.pharawal@librarygenesis.in'],
-				subject='Exception occured while parsing',
-				body=f'class=Search\nfunction=parsed\nuser={user}\nerror={e}\ncode={r.text}')
-			email.send()
+			print(f'exception occured with e={e}')
+			try:
+				print(f'r.text={r.text}')
+			except Exception as e:
+				print(f'r.text does not exist')
 			try_again = True
 		if len(books) == 0:
 			no_result_found = True
@@ -484,10 +482,7 @@ class BookClicked(LoginRequiredMixin, View):
 			try:
 				with open(os.path.join(base_dir, 'headers.json')) as f:
 					headers = choice(json.loads(f.read()))
-					headers['origin'] = ''
-					headers['X-Forwarded-For'] = visitor_ip
-					headers['X-Real-IP'] = visitor_ip
-				response = requests.get(link,  headers=headers, proxies={'https': 'https://xvfdrygu-rotate:xnevmqeix7ng@p.webshare.io:80'}, timeout=8)
+				response = requests.get(link,  headers=headers, proxies={'https': 'https://xvfdrygu-rotate:xnevmqeix7ng@p.webshare.io:80'}, timeout=10)
 				bsobj = BeautifulSoup(response.text)
 				final_link = bsobj.find('table').findAll('tr')[0].findAll('td')[1].a['href']
 				name = slugify(name)
@@ -495,13 +490,16 @@ class BookClicked(LoginRequiredMixin, View):
 					if not models.Book.objects.filter(slug=name).exists():
 						models.Book.objects.create(user=request.user, name=name, slug=slugify(name))
 			except Exception as e:
-				email = EmailMessage(
-					subject='Book download link was not received',
-					body=f'class = BookClicked\nmethod = get\ncomplete error = {e}',
-					from_email='Django Server <server@librarygenesis.in>',
-					to=['himanshu.pharawal@librarygenesis.in'])
-				email.send()
-			return HttpResponse(final_link)
+				print('exception occured when book clicked e={e}')
+				try:
+					print(response.text)
+				except Exception as e:
+					print('response.text does not exists')
+			try:
+				return HttpResponse(final_link)
+			except Exception as e:
+				print(f'final link is not not recieved e={e}')
+				return HttpResponse(reverse('oops'))
 		else:
 			email = EmailMessage(
 				subject='md5 was received as null',
@@ -546,3 +544,13 @@ def terms_condition(request):
 
 def about_us(request):
 	return render(request, 'about_us.html')
+
+class EmailDashboard(View):
+
+	def post(self, request):
+		email_dashboard_form = forms.EmailDashboardForm(request.POST)
+		if email_dashboard_form.is_valid():
+			print(f"email has been sent from {email_dashboard_form.cleaned_data['from_email']} to {email_dashboard_form.cleaned_data['to']} where subject is {email_dashboard_form.cleaned_data['subject']} and body is {email_dashboard_form.cleaned_data['body']}")
+		else:
+			return JsonResponse({'errors': email_dashboard_form.errors.get_json_data()})
+		return JsonResponse({'msg': 'ok'})
