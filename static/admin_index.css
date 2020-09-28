@@ -11,19 +11,19 @@
 	flex-grow: 1;
 }
 
-.flex-gap-10 {
-	margin: 10px;
+.flex-gap-10>* {
+	margin: 5px;
 }
 
-.flex-flow-coloumn {
-	direction: column;
+.flex-direction-column {
+	flex-direction: column;
 }
 
 .flex-end {
 	justify-content: flex-end;
 }
 
-.align-center {
+.align-items-center {
 	align-items: center;
 }
 
@@ -64,4 +64,8 @@
 .clickable {
 	color: #3498db;
 	cursor: pointer;
+}
+
+.justify-content-center {
+	justify-content: center;
 }

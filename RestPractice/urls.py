@@ -27,5 +27,6 @@ admin.site.index_template = os.path.join(os.path.dirname(os.path.dirname(os.path
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('LibGen.urls')),
+    path('mailer/', include('mailer.urls', namespace='mailer')),
     path('accounts/', include('django.contrib.auth.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
