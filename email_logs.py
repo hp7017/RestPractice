@@ -12,10 +12,13 @@ paths = ['var/log/www.librarygenesis.in.server.log', 'var/log/www.librarygenesis
 for path in paths:
 	r = requests.get(f'https://www.pythonanywhere.com/api/v0/user/{username}/files/path/{path}', headers={'Authorization': 'Token {token}'.format(token=token)})
 	date = datetime.now()
-	date = date.strftime('%d-%m-%Y')
+	date = date.strftime('%Y-%m-%d')
+	lines = r.text.split('\n')
+	today_lines = [line for line in lines if line.split(' ')[0] == date]
+	today_data = '\n'.join(today_lines)
 	email = EmailMessage(
 		from_email='Django Server <server@librarygenesis.in>',
 		to=['himanshu.pharawal@librarygenesis.in'],
 		subject=f'Server Logs [{date}]',
-		body=f'{r.text}')
+		body=f'{today_data}')
 	email.send(fail_silently=False)
