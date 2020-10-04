@@ -35,10 +35,11 @@
 						$("input[name='orderCurrency']").val(data.orderCurrency);
 						$("input[name='orderNote']").val(data.orderNote);
 						$("input[name='customerEmail']").val(data.customerEmail);
-						$("input[name='customerName']").val(data.customerName);
+						$("input[name='customerName']").val(data.name);
 						$("input[name='customerPhone']").val(data.customerPhone);
 						$("input[name='returnUrl']").val(data.returnUrl);
 						$("input[name='notifyUrl']").val(data.notifyUrl);
+						$("#redirectForm").attr('action', data.url)
 						$("#redirectForm").submit()
 					}
 				})
@@ -75,7 +76,7 @@
 								<input type="submit" value="Recharge">
 							</form>
 							<p id="recharge_form_error"></p>
-							<form id="redirectForm" method="post" action="https://test.cashfree.com/billpay/checkout/post/submit">
+							<form id="redirectForm" method="post" action="">
 								<input type="hidden" name="appId">
 								<input type="hidden" name="orderId">
 								<input type="hidden" name="orderAmount">
