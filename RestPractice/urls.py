@@ -22,7 +22,6 @@ admin.site.site_header = 'Library Genesis App admin'
 admin.site.site_title = 'Library Genesis App admin'
 admin.site.index_title = 'Library Genesis App administration'
 admin.empty_value_display = '**Empty**'
-admin.site.index_template = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'templates', 'admin_index.html')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
