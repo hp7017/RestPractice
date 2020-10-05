@@ -1,6 +1,7 @@
 $("#show_users").click(function(){
 	formData = new FormData($('#mail_form')[0]);
 	formData.append('show_users', true)
+	console.log('show_users')
 	$.ajax({
 		type: 'post',
 		url: '',
@@ -48,6 +49,19 @@ $('#mail_form').submit(function(){
 			else {
 				$('#mail_form').prepend('<div role="alert" class="alert alert-success text-left"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button><span style="font-size: 20px;">😀<strong> Email has been sent.</strong><br /></span></div>')
 			}
+		}
+	})
+})
+$('#logout').click(function(){
+	$.ajax({
+		url: '',
+		type: 'post',
+		data: {
+			'log_out': true,
+			'csrfmiddlewaretoken': $("input[name='csrfmiddlewaretoken']").val()
+		},
+		success: function(data){
+			window.location.href = data.redirect_page
 		}
 	})
 })

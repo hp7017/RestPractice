@@ -11,11 +11,13 @@
 	<link rel="stylesheet" type="text/css" href="{% static 'search-result.css' %}">
 	<script>
 		$(document).ready(function(){
+			pat = window.location.href
 			$(".book_link").click(function(){
 				$(".overlay").show()
 				$.get("{% url 'book_clicked' %}", {
 					'id': $(this).attr('href'),
-					'name': $(this).attr('title')
+					'name': $(this).attr('title'),
+					'path': pat
 				}, function(data){
 					window.location.href = data;
 					$(".overlay").hide()

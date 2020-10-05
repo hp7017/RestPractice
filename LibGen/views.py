@@ -468,12 +468,13 @@ class ContactUs(View):
 			models.Msg.objects.create(email='self@librarygenesis.in', text='Contact Us page is not working! text or email have recieved as none instead of object.\nemail = {email}\ntext = {text}')
 			return HttpResponse('Somthing went wrong! Report has been sent.')
 
-class BookClicked(LoginRequiredMixin, View):
-
-	def handle_no_permission(self):
-		return HttpResponse(reverse('login'))
+class BookClicked(View):
 
 	def get(self, request):
+		if not request.user.is_authenticated:
+			login_path = reverse('login')
+			path = request.GET['path']
+			return HttpResponse(f'{login_path}?next={path}')
 		prefix = 'https://libgen.lc/ads.php?md5='
 		visitor_ip = request.META.get('HTTP_X_REAL_IP')
 		md5 = request.GET.get('id')
