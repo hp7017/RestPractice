@@ -69,7 +69,7 @@
        <h4 class="card-title">
         Downloaded Books
        </h4>
-       <ul class="list-group">
+       <ul class="list-group" style="overflow-y: auto;max-height: 70vh;">
         {% for book in user.books.all %}
         <li class="list-group-item">
          <span>
@@ -77,13 +77,6 @@
          </span>
         </li>
         {% endfor %}
-        {% if not user.books.exists %}
-        <li class="list-group-item list-group-item-danger">
-         <span>
-          Empty
-         </span>
-        </li>
-        {% endif %}
        </ul>
       </div>
      </div>
