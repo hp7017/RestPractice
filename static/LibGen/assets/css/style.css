@@ -58,6 +58,7 @@
 
 .card.related-keywords-md {
   display: none;
+  z-index: 1;
 }
 
 @media (min-width: 300px) {

@@ -151,28 +151,27 @@
      </div>
     </div>
     <div class="text-right swing animated related-keywords" style="position: fixed;top: 150px;right: 40px;">
-     <a aria-controls="collapse-1" aria-expanded="false" class="btn btn-info border rounded-circle shadow" data-toggle="collapse" href="#collapse-1" role="button">
+     <a aria-controls="collapse-1" aria-expanded="true" class="btn btn-info border rounded-circle shadow" data-toggle="collapse" href="#collapse-1" role="button">
       <i class="fa fa-sort-desc" style="font-size: 30px;">
       </i>
      </a>
-     <div class="collapse" id="collapse-1" style="padding: 0 10px;">
+     <div class="collapse show" id="collapse-1" style="padding: 0 10px;">
+      {% for word in words %}
       <ul class="list-group shadow">
-       <li class="list-group-item list-group-item-info">
-        <span>
-         List Group Item 1
-        </span>
-       </li>
        <li class="list-group-item">
         <span>
-         List Group Item 2
+         {{ word.word }}
         </span>
        </li>
-       <li class="list-group-item">
+       {% for syn in word.synonyms %}
+       <li class="list-group-item list-group-item-info" style="z-index: 1;">
         <span>
-         List Group Item 3
+         {{ syn }}
         </span>
        </li>
+       {% endfor %}
       </ul>
+      {% endfor %}
      </div>
     </div>
    </div>
