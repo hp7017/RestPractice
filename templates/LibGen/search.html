@@ -1,0 +1,196 @@
+{% extends 'LibGen/base.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport"/>
+  <title>
+   Library Genesis App
+  </title>
+  <meta content="summary" name="twitter:card"/>
+  <meta content="Library Genesis App" name="twitter:title"/>
+  <meta content="/assets/img/icon.png" property="og:image"/>
+  <meta content="Library Genesis is a file-sharing based shadow library website for scholarly journal articles, academic and general-interest books, images, comics, and magazines. In part, the site enables free access to content that is otherwise paywalled or not digitized elsewhere" name="description"/>
+  <meta content="website" property="og:type"/>
+  <meta content="Library Genesis is a file-sharing based shadow library website for scholarly journal articles, academic and general-interest books, images, comics, and magazines. In part, the site enables free access to content that is otherwise paywalled or not digitized elsewhere" name="twitter:description"/>
+  <link href='{% static "LibGen/assets/img/icon.png" %}' rel="icon" sizes="128x128" type="image/png"/>
+  <link href='{% static "LibGen/assets/bootstrap/css/bootstrap.min.css" %}' rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.css" rel="stylesheet"/>
+  <link href='{% static "LibGen/assets/css/style.css" %}' rel="stylesheet"/>
+ </head>
+ <body dj-extends="/base.html">
+  {% block content %}
+  <main class="search-main" style="margin-top: 100px;">
+   <div class="container-fluid">
+    <form>
+     <div class="form-group d-flex justify-content-start">
+      <input autocomplete="on" class="form-control search-form-input" name="query" placeholder="Search here" type="search"/>
+      <button class="btn btn-primary" type="submit">
+       Button
+      </button>
+     </div>
+    </form>
+    <div class="row">
+     <div class="col-12 col-sm-12 col-md-8">
+      <section>
+       {% if try_again %}
+       <div class="alert alert-danger alert-no-result" role="alert">
+        <span class="alert-no-result-text">
+         😥
+         <strong>
+          Something wrong happend try again.
+         </strong>
+        </span>
+       </div>
+       {% elif no_result_found %}
+       <div class="alert alert-danger alert-no-result" role="alert">
+        <span class="alert-no-result-text">
+         😥
+         <strong>
+          No result found. Try other keywords.
+         </strong>
+         <br/>
+        </span>
+       </div>
+       {% endif %}
+       <div style="margin: -5px;">
+        <div class="d-lg-flex align-items-start flex-wrap" id="accordion-1" role="tablist" style="margin: -5px;">
+         {% for book in books %}
+         <div class="card book" style="margin: 5px;max-width: 360px;">
+          <div class="card-header" role="tab">
+           <h5 class="mb-0">
+            <i class="fa fa-file-pdf-o" style="margin-right: 10px;font-size: 25px;color: rgb(50,55,58);">
+            </i>
+            <a aria-controls="accordion-1 .item-{{forloop.counter}}" aria-expanded="{% if forloop.counter == 1 %}true{% else %}false{% endif %}" class="{% if forloop.counter != 1 %}collapsed{% endif %}" data-toggle="collapse" href="#accordion-1 .item-{{forloop.counter}}">
+             {{ book.title }}
+            </a>
+           </h5>
+           <small class="text-muted">
+            by :
+            <span>
+             {{ book.author }}
+            </span>
+           </small>
+          </div>
+          <div class="collapse item-{{forloop.counter}} {% if forloop.counter == 1 %}show{% endif %}" data-parent="#accordion-1" role="tabpanel">
+           <div class="card-body">
+            <div class="table-responsive">
+             <table class="table table-sm">
+              <tbody>
+               <tr>
+                <td class="table-light" style="font-size: 18px;">
+                 Size
+                </td>
+                <td class="text-info">
+                 {{ book.size }}
+                </td>
+               </tr>
+               <tr>
+                <td style="font-size: 18px;">
+                 Format
+                </td>
+                <td class="text-info">
+                 {{ book.extension }}
+                </td>
+               </tr>
+              </tbody>
+             </table>
+            </div>
+            <button class="btn btn-link btn-sm download-link" hr="{{ book.md5 }}" title="{{ book.name }}" type="button">
+             <i class="fa fa-download" style="margin-right: 10px;font-size: 18px;">
+             </i>
+             Download
+            </button>
+           </div>
+          </div>
+         </div>
+         {% endfor %}
+        </div>
+       </div>
+      </section>
+     </div>
+     <div class="col">
+      <aside>
+       <div class="card related-keywords-md" data-aos="zoom-in">
+        <img class="card-img w-100 d-block related_words" src='{% static "LibGen/assets/img/keywords-back.jpg" %}' style="object-fit: cover;height: 400px;"/>
+        {% if having_related_words %}
+        <div class="card-img-overlay text-white">
+         <h4>
+          Related Keywords
+         </h4>
+         <ol>
+          {% for word in words %}
+          <li>
+           <span>
+            {{ word.word }}
+           </span>
+           <ul>
+            {% for syn in word.synonyms %}
+            <li>
+             {{ syn }}
+            </li>
+            {% endfor %}
+           </ul>
+          </li>
+          {% endfor %}
+         </ol>
+        </div>
+        {% else %}
+        <div class="card-img-overlay text-white">
+         <h4>
+          No Keywords Found
+         </h4>
+        </div>
+        {% endif %}
+       </div>
+      </aside>
+     </div>
+    </div>
+    <div class="text-right swing animated related-keywords" style="position: fixed;top: 150px;right: 40px;">
+     <a aria-controls="collapse-1" aria-expanded="false" class="btn btn-info border rounded-circle shadow" data-toggle="collapse" href="#collapse-1" role="button">
+      <i class="fa fa-sort-desc" style="font-size: 30px;">
+      </i>
+     </a>
+     <div class="collapse" id="collapse-1" style="padding: 0 10px;">
+      <ul class="list-group shadow">
+       <li class="list-group-item list-group-item-info">
+        <span>
+         List Group Item 1
+        </span>
+       </li>
+       <li class="list-group-item">
+        <span>
+         List Group Item 2
+        </span>
+       </li>
+       <li class="list-group-item">
+        <span>
+         List Group Item 3
+        </span>
+       </li>
+      </ul>
+     </div>
+    </div>
+   </div>
+   <div class="overlay" id="overlay-spinner">
+    <span class="spinner-border text-dark" role="status" style="width: 70px;height: 70px;">
+    </span>
+   </div>
+  </main>
+  {% endblock %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js">
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js">
+  </script>
+  <script src='{% static "LibGen/assets/js/bs-animation.js" %}'>
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.js">
+  </script>
+  <script src='{% static "LibGen/assets/js/script.js" %}'>
+  </script>
+ </body>
+</html>

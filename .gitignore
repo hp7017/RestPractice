@@ -11,3 +11,5 @@ send_emails.py
 get_proxies.py
 run.py
 EmailTemplates/
+export/
+bstudio/

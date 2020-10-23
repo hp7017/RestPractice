@@ -55,7 +55,7 @@ class Index(View):
 			'sponsored_books': sponsored_books,
 			'no_of_blank_spaces': [i for i in range(6 - sponsored_books.count())]
 		}
-		return render(request, 'index.html', context=context)
+		return render(request, 'LibGen/index.html', context=context)
 
 class Profile(LoginRequiredMixin, View):
 
@@ -65,7 +65,7 @@ class Profile(LoginRequiredMixin, View):
 		context = {
 			'user' : user,
 		}
-		return render(request, 'profile.html', context=context)
+		return render(request, 'LibGen/profile.html', context=context)
 
 	def post(self, request):
 		if request.POST.get('delete'):
@@ -177,6 +177,7 @@ class Search(View):
 			'having_related_words': having_related_words,
 			'having_definitions': having_definitions,
 		}
+		print(having_related_words)
 		return context
 
 	def get(self, request):
@@ -188,7 +189,7 @@ class Search(View):
 			context = self.parsed(search=search, user=request.user, visitor_ip=visitor_ip)
 		else:
 			context = self.parsed(search=search, visitor_ip=visitor_ip)
-		return render(request, 'search-result.html', context=context)
+		return render(request, 'LibGen/search.html', context=context)
 
 class BookDetail(Search):
 	

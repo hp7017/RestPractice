@@ -1,0 +1,78 @@
+{% extends 'LibGen/base.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport"/>
+  <title>
+   Home - Library Genesis App
+  </title>
+  <meta content="summary" name="twitter:card"/>
+  <meta content="Library Genesis App" name="twitter:title"/>
+  <meta content="/assets/img/icon.png" property="og:image"/>
+  <meta content="Library Genesis is a file-sharing based shadow library website for scholarly journal articles, academic and general-interest books, images, comics, and magazines. In part, the site enables free access to content that is otherwise paywalled or not digitized elsewhere" name="description"/>
+  <meta content="website" property="og:type"/>
+  <meta content="Library Genesis is a file-sharing based shadow library website for scholarly journal articles, academic and general-interest books, images, comics, and magazines. In part, the site enables free access to content that is otherwise paywalled or not digitized elsewhere" name="twitter:description"/>
+  <link href='{% static "LibGen/assets/img/icon.png" %}' rel="icon" sizes="128x128" type="image/png"/>
+  <link href='{% static "LibGen/assets/bootstrap/css/bootstrap.min.css" %}' rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.css" rel="stylesheet"/>
+  <link href='{% static "LibGen/assets/css/style.css" %}' rel="stylesheet"/>
+ </head>
+ <body dj-extends="/base.html">
+  {% block content %}
+  <div>
+   <div class="blur-back" style='background-image: url("/static/LibGen/assets/img/searching.jpg");'>
+   </div>
+   <header class="align-items-center text-white text-white text-center header masthead" style="position: absolute;top: 0;width: 100%;height: 100vh;background-color: rgba(52,58,64,0);">
+    <div class="container">
+     <div class="row text-info">
+      <div class="col-xl-9 mx-auto">
+       <p class="text-white head-app">
+        Library Genesis App
+       </p>
+       <h2 class="text-white pera" style="font-size: 16px;font-weight: normal;">
+        <br/>
+        <br/>
+        Library Genesis is a file-sharing based shadow library website for scholarly journal articles, academic and general-interest books, images, comics, and magazines. In part, the site enables free access to content that is
+                            otherwise paywalled or not digitized elsewhere
+        <br/>
+        <br/>
+        <br/>
+       </h2>
+      </div>
+      <div class="col-md-10 col-lg-8 col-xl-7 mx-auto">
+       <form action="{% url 'search' %}" class="rubberBand animated">
+        <div class="form-row">
+         <div class="col-12 col-md-9 mb-2 mb-md-0">
+          <input class="form-control form-control-lg" name="query" placeholder="Enter Book title or Author Name" type="text"/>
+         </div>
+         <div class="col-12 col-md-3">
+          <button class="btn btn-primary btn-block btn-lg" type="submit">
+           <i class="fa fa-search">
+           </i>
+          </button>
+         </div>
+        </div>
+       </form>
+      </div>
+     </div>
+    </div>
+   </header>
+  </div>
+  {% endblock %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js">
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js">
+  </script>
+  <script src='{% static "LibGen/assets/js/bs-animation.js" %}'>
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.js">
+  </script>
+  <script src='{% static "LibGen/assets/js/script.js" %}'>
+  </script>
+ </body>
+</html>
