@@ -36,7 +36,7 @@
   background-size: cover;
   background-repeat: no-repeat;
   background-position: 50% 50%;
-  text-align: center;
+  /*text-align: center;*/
   padding: 20px 0;
 }
 
@@ -47,8 +47,8 @@
 
 .table-responsive.user-data {
   width: 80vw;
-  margin: 0 auto;
   max-width: 576px;
+  margin: 0 auto;
 }
 
 .card-group.card-group {

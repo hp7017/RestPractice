@@ -557,3 +557,9 @@ class EmailDashboard(View):
 		else:
 			return JsonResponse({'errors': email_dashboard_form.errors.get_json_data()})
 		return JsonResponse({'msg': 'ok'})
+
+class AdsTxt(View):
+
+	def get(self, request):
+		ads = 'google.com, pub-3288901882834843, DIRECT, f08c47fec0942fa0'
+		return HttpResponse(ads)

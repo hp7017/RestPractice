@@ -18,10 +18,19 @@
   <link href='{% static "LibGen/assets/bootstrap/css/bootstrap.min.css" %}' rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet"/>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet"/>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css" rel="stylesheet"/>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.1.1/aos.css" rel="stylesheet"/>
   <link href='{% static "LibGen/assets/css/style.css" %}' rel="stylesheet"/>
-  <script async="" data-ad-client="ca-pub-3288901882834843" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js">
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-175581013-1">
+  </script>
+  <script>
+   window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-175581013-1');
   </script>
  </head>
  <body dj-extends="/base.html">
@@ -31,8 +40,10 @@
     <form>
      <div class="form-group d-flex justify-content-start">
       <input autocomplete="on" class="form-control search-form-input" name="query" placeholder="Search here" type="search"/>
-      <button class="btn btn-primary" type="submit">
-       Button
+      <button class="btn btn-primary text-nowrap" type="submit">
+       <i class="fa fa-search" style="margin-right: 5px;">
+       </i>
+       Search
       </button>
      </div>
     </form>
@@ -60,6 +71,13 @@
        </div>
        {% endif %}
        <div style="margin: -5px;">
+        <script async="" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js">
+        </script>
+        <ins class="adsbygoogle" data-ad-client="ca-pub-3288901882834843" data-ad-format="fluid" data-ad-layout-key="-hc+g-j-5g+bo" data-ad-slot="1820371640" style="display:block">
+        </ins>
+        <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
         <div class="d-lg-flex align-items-start flex-wrap" id="accordion-1" role="tablist" style="margin: -5px;">
          {% for book in books %}
          <div class="card book" style="margin: 5px;max-width: 360px;">
@@ -153,11 +171,11 @@
      </div>
     </div>
     <div class="text-right swing animated related-keywords" style="position: fixed;top: 150px;right: 40px;">
-     <a aria-controls="collapse-1" aria-expanded="true" class="btn btn-info border rounded-circle shadow" data-toggle="collapse" href="#collapse-1" role="button">
+     <a aria-controls="collapse-1" aria-expanded="false" class="btn btn-info border rounded-circle shadow" data-toggle="collapse" href="#collapse-1" role="button">
       <i class="fa fa-sort-desc" style="font-size: 30px;">
       </i>
      </a>
-     <div class="collapse show" id="collapse-1" style="padding: 0 10px;">
+     <div class="collapse" id="collapse-1" style="padding: 0 10px;">
       {% for word in words %}
       <ul class="list-group shadow">
        <li class="list-group-item">
